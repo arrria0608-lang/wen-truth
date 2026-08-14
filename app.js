@@ -987,12 +987,24 @@
     const profile = structureProfile(chart);
     const relations = branchRelations(chart);
     const current = forecast.years.find(item => item.year === new Date().getFullYear()) || forecast.years[0];
+    const careerProfile = careerHealthProfile(chart, forecast);
+    const rankedGods = Object.entries(profile.tenGodCounts).sort((a, b) => b[1] - a[1]).filter(([, count]) => count > 0);
+    const primaryGod = rankedGods[0]?.[0] || '比肩';
     const topYears = key => [...forecast.years].sort((a, b) => b[key].score - a[key].score || a.year - b.year).slice(0, 3).map(item => `${item.year}（${item[key].label}）`);
     const wealthYears = topYears('wealth');
     const marriageYears = topYears('marriage');
     const careerYears = topYears('career');
     const wealthLocations = profile.positions.wealth;
     const careerLocations = profile.positions.career;
+    const directWealthCount = profile.tenGodCounts['正财'] || 0;
+    const indirectWealthCount = profile.tenGodCounts['偏财'] || 0;
+    const wealthType = directWealthCount > indirectWealthCount ? '正財為主' : indirectWealthCount > directWealthCount ? '偏財為主' : directWealthCount ? '正財、偏財並見' : '原局表層財星不顯';
+    const earningRouteMap = {
+      比肩: '靠個人專業、主導權與成果分成累積收入', 劫财: '靠合作開發、競爭能力與資源整合創造收入', 食神: '靠作品、服務品質、內容或長期口碑變現', 伤官: '靠企劃、表達、創新與解決複雜問題變現',
+      偏财: '靠市場機會、客戶開發、通路與外部資源變現', 正财: '靠固定職能、流程管理、財務紀律與穩定交付累積', 七杀: '靠承擔高責任目標、績效與急難任務取得報酬', 正官: '靠職位、資格、制度信用與管理責任提升收入',
+      偏印: '靠研究、技術、特殊知識與顧問判斷變現', 正印: '靠學歷資格、教學、照護或專業支持建立穩定收入'
+    };
+    const earningRoute = earningRouteMap[primaryGod] || '靠可重複驗證的專業成果與長期信用累積收入';
     const familyRelations = relations.filter(item => item.positions.includes('年柱') || item.positions.includes('月柱'));
     const wealthPattern = wealthLocations.length === 0
       ? '原局表层财星不显，财富更依赖专业能力、稳定产出与长期现金流管理，不适合把单一机会当成全部重心。'
@@ -1005,6 +1017,21 @@
       : dayRelation.some(item => item.type.includes('合'))
         ? '夫妻宫参与合局，重视陪伴、默契与共同安排；需要留意为了维持和谐而延后表达真实需求。'
         : '夫妻宫未触发本版收录的明显合冲，感情稳定度更取决于沟通、价值观与现实生活安排。';
+    const partnerIdealMap = {
+      比肩: '尊重彼此自主、能並肩做決定且不過度控制的人', 劫财: '反應快、有行動力，也願意把利益與責任說清楚的人', 食神: '情緒穩定、重生活品質並願意耐心溝通的人', 伤官: '能接住直接表達、願意討論觀點且不壓抑成長的人',
+      偏财: '社交成熟、有彈性並能共同開拓生活可能性的人', 正财: '可靠務實、金錢觀清楚且願意共同經營日常的人', 七杀: '有擔當、決斷力強，但懂得尊重界線的人', 正官: '重承諾、守信用、生活規劃與價值觀穩定的人',
+      偏印: '能理解獨處與思考需求，不急著要求立即表態的人', 正印: '溫和有支持力、願意一起學習並建立安全感的人'
+    };
+    const relationshipAttitudeMap = {
+      比肩: '感情中重平等與自主，不喜歡被替你作主', 劫财: '投入時熱烈直接，但對公平與付出比例很敏感', 食神: '願意照顧日常與氣氛，偏好穩定累積感情', 伤官: '重真實交流與精神互動，無法長期忍受表面和諧',
+      偏财: '重互動的新鮮感與共同體驗，社交空間不可少', 正财: '以實際付出、責任與生活安排表達在意', 七杀: '面對關係問題傾向直接處理，但壓力下語氣可能過強', 正官: '重名分、承諾與規則，會觀察對方是否可靠',
+      偏印: '先觀察再投入，需要足夠信任才會完整表達', 正印: '重安全感與精神支持，容易先照顧對方再談自己'
+    };
+    const relationshipChallenge = dayRelation.some(item => item.type === '六冲')
+      ? '主要困境是衝突時容易在靠近與抽離之間擺盪，重大決定應隔一晚再談。'
+      : dayRelation.some(item => item.type.includes('合'))
+        ? '主要困境是為了維持關係而延後說出不滿，界線與金錢分工要提早談。'
+        : '主要困境不是單一合沖，而是期待沒有說明；需要把陪伴頻率、家庭責任與未來規劃具體化。';
     const familyPattern = familyRelations.some(item => item.type === '六冲')
       ? '年柱或月柱见冲，家庭期待与个人选择之间较容易出现拉扯；提早说明界线、金钱责任与照顾分工，会比临时协调有效。'
       : familyRelations.some(item => item.type.includes('合'))
@@ -1014,12 +1041,32 @@
       ? `官杀落于${careerLocations.slice(0, 3).join('、')}，事业发展较重责任、评价标准与职位结构；先争取明确授权，再承担结果。`
       : '原局表层官杀不显，事业不必只依赖职位或组织授权，更适合以专业成果、作品与实际解决问题的能力建立影响力。';
     return [
-      { title: '财运小结', summary: wealthPattern, advice: `较值得留意的财运年份：${wealthYears.join('、')}。有利年份仍应先留预算与风险缓冲，不以流年标签代替实际评估。`, evidence: wealthLocations.length ? wealthLocations.join('；') : '原局天干与藏干未检出财星落点' },
-      { title: '婚姻感情', summary: marriagePattern, advice: `感情互动较集中的年份：${marriageYears.join('、')}。适合用共同计划、生活分工与金钱边界验证关系，不只看情绪强度。`, evidence: dayRelation.length ? dayRelation.map(item => `${item.members}${item.type}`).join('；') : '夫妻宫未触发已收录合冲规则' },
-      { title: '事业发展', summary: careerPattern, advice: `事业推动较明显的年份：${careerYears.join('、')}。把职位名称、实际权限、考核方式与资源支持同时谈清楚。`, evidence: careerLocations.length ? careerLocations.join('；') : '原局表层官杀未显' },
-      { title: '家庭关系', summary: familyPattern, advice: '家庭议题宜用固定沟通、财务分工和照顾安排处理；遇到婚姻或事业变化时，先区分自己的选择与家人的期待。', evidence: familyRelations.length ? familyRelations.map(item => `${item.positions}${item.type}`).join('；') : '年柱、月柱未触发已收录合冲规则' },
-      { title: `${forecast.health.year} 健康关注`, summary: forecast.health.headline, advice: `${forecast.health.details.slice(0, 2).join('；')}。如已有持续不适或异常指标，应直接就医检查。`, evidence: `年度五行关注：${forecast.health.attention}` },
-      { title: '综合行动建议', summary: `今年先把重点放在“${forecast.actionFocus}”。贵人方位可参考 ${forecast.nobleDirection}，行动时间可参考 ${forecast.actionWindow}。`, advice: `本年${current ? `婚姻${current.marriage.label}、事业${current.career.label}、财富${current.wealth.label}` : '以稳健执行为主'}；优先处理最能留下可验证成果的一件事。`, evidence: current ? `${current.year}${current.pillar}；${current.keyNote}` : forecast.method }
+      {
+        title: '财运小结', summary: wealthPattern,
+        highlights: [{ label: '財星類型', text: wealthType }, { label: '主要賺法', text: earningRoute }, { label: '收入重點', text: directWealthCount >= indirectWealthCount && directWealthCount ? '先穩定本業現金流，再發展第二收入' : indirectWealthCount ? '以客戶、通路或專案機會擴張，但先寫清成本與分配' : '先把專業能力做成可定價、可重複交付的成果' }],
+        advice: `较值得留意的财运年份：${wealthYears.join('、')}。先建立六個月內可追蹤的收入、固定支出與專案毛利表；有利年份仍須保留風險緩衝。`,
+        evidence: `${wealthType}；正財權重 ${directWealthCount}、偏財權重 ${indirectWealthCount}${wealthLocations.length ? `；${wealthLocations.join('；')}` : ''}`
+      },
+      {
+        title: '婚姻感情', summary: marriagePattern,
+        highlights: [{ label: '理想伴侶', text: partnerIdealMap[primaryGod] }, { label: '你的態度', text: relationshipAttitudeMap[primaryGod] }, { label: '主要困境', text: relationshipChallenge }],
+        advice: `感情互動較集中的年份：${marriageYears.join('、')}。用三次具體對話確認生活節奏、金錢邊界與家庭責任，不只用情緒強度判斷關係。`,
+        evidence: dayRelation.length ? dayRelation.map(item => `${item.members}${item.type}`).join('；') : '夫妻宫未触发已收录合冲规则'
+      },
+      {
+        title: '事业发展', summary: careerPattern,
+        highlights: [{ label: '主軸領域', text: careerProfile.directions.join('／') }, { label: '具體職位', text: careerProfile.roles.slice(0, 5).join('、') }, { label: '先做準備', text: '比對真實職缺、補齊一項核心能力，完成一份可展示的成果案例' }],
+        advice: `事业推动较明显的年份：${careerYears.join('、')}。先選一個目標職位，確認學歷／證照、日常工作、薪資區間與升遷路徑，再決定進修或轉職。`,
+        evidence: careerLocations.length ? careerLocations.join('；') : `主要十神：${careerProfile.dominantGods.join('、')}`
+      },
+      { title: '家庭关系', summary: familyPattern, highlights: [{ label: '溝通重點', text: '固定聯絡頻率、照顧分工、共同支出與個人界線' }, { label: '遇到變動', text: '先說明自己的決定，再討論家人能協助與不能承擔的部分' }], advice: '家庭議題宜設定固定討論時間並留下共識；遇到婚姻或事業變化時，先區分自己的選擇與家人的期待。', evidence: familyRelations.length ? familyRelations.map(item => `${item.positions}${item.type}`).join('；') : '年柱、月柱未触发已收录合冲规则' },
+      {
+        title: `${forecast.health.year} 健康关注`, summary: forecast.health.headline,
+        highlights: careerProfile.bodyFocus.map(item => ({ label: `${item.element} · ${item.role}`, text: item.areas })),
+        advice: `${careerProfile.bodyFocus.map(item => item.advice).join('；')}以上只作日常觀察；如已有持續不適、疼痛或異常指標，應直接就醫檢查。`,
+        evidence: `年度五行关注：${forecast.health.attention}；不作疾病診斷`
+      },
+      { title: '综合行动建议', summary: `今年先把重点放在“${forecast.actionFocus}”。贵人方位可参考 ${forecast.nobleDirection}，行动时间可参考 ${forecast.actionWindow}。`, highlights: [{ label: '本月', text: '選定一項可驗證成果，寫下截止時間、需要資源與完成標準' }, { label: '每季', text: '檢視工作成果、現金流、關係界線與身體狀態各一次' }], advice: `本年${current ? `婚姻${current.marriage.label}、事业${current.career.label}、财富${current.wealth.label}` : '以稳健执行为主'}；优先处理最能留下可验证成果的一件事。`, evidence: current ? `${current.year}${current.pillar}；${current.keyNote}` : forecast.method }
     ];
   }
 
@@ -1053,32 +1100,48 @@
     ];
   }
 
+  const FIVE_ELEMENT_BODY_FOCUS = {
+    木: { areas: '眼睛疲勞、頸肩與筋腱活動度，以及壓力下的情緒緊繃', advice: '每工作 50 分鐘起身活動，安排肩頸與下肢伸展；長時間用眼時固定休息。' },
+    火: { areas: '睡眠品質、心悸或胸悶等不適訊號，以及高溫與高壓後的恢復', advice: '減少連續熬夜與過量刺激性飲品；若心悸、胸痛或呼吸不適持續，應儘速就醫。' },
+    土: { areas: '胃腸消化、腹部舒適度、飲食規律與久坐後的肌肉狀態', advice: '固定用餐時間，避免壓力大時暴飲暴食；每週安排漸進式核心與步行活動。' },
+    金: { areas: '鼻咽與呼吸道、皮膚乾燥，以及空調或季節轉換時的適應', advice: '保持通風與適量補水；反覆喘、持續咳嗽或皮膚異常時，直接尋求專業評估。' },
+    水: { areas: '腰背、泌尿狀況、耳部感受、骨骼活動與長期疲勞恢復', advice: '避免長期睡眠透支，久坐時保護腰背並漸進運動；持續疼痛或排尿異常應就醫。' }
+  };
+
   function careerHealthProfile(chart, forecast) {
     const profile = structureProfile(chart);
-    const dominantGods = Object.entries(profile.tenGodCounts).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([name]) => name);
+    const dominantGods = Object.entries(profile.tenGodCounts).sort((a, b) => b[1] - a[1]).filter(([, count]) => count > 0).slice(0, 2).map(([name]) => name);
     const careerMap = {
-      比肩: ['自主项目', '专业顾问', '技术负责人'], 劫财: ['商务拓展', '资源整合', '团队攻坚'], 食神: ['内容产品', '设计创作', '服务体验'], 伤官: ['产品策划', '咨询提案', '流程创新'],
-      偏财: ['市场商务', '渠道合作', '商业运营'], 正财: ['财务运营', '项目管理', '供应链管理'], 七杀: ['危机处理', '工程项目', '绩效管理'], 正官: ['行政管理', '合规风控', '公共服务'],
-      偏印: ['研究分析', '技术研发', '策略顾问'], 正印: ['教育培训', '知识管理', '专业支持']
+      比肩: { direction: '自主專業與專案主導', roles: ['自由接案顧問', '技術主管', '專案負責人', '小型創業經營'] },
+      劫财: { direction: '商務開發與資源整合', roles: ['商務開發', '招募顧問', '活動統籌', '客戶成功經理'] },
+      食神: { direction: '內容、產品與服務體驗', roles: ['內容企劃', '產品經理', '服務設計', '餐旅營運'] },
+      伤官: { direction: '企劃、顧問與流程創新', roles: ['產品企劃', '管理顧問', '流程改善專員', '媒體編輯'] },
+      偏财: { direction: '市場、通路與商業合作', roles: ['業務開發', '品牌行銷', '通路經營', '商業營運'] },
+      正财: { direction: '財務與穩定營運管理', roles: ['會計／財務分析', '營運專員', '採購／供應鏈管理', '專案管理'] },
+      七杀: { direction: '工程、應變與目標管理', roles: ['工程專案管理', '營運督導', '風險應變專員', '外勤管理'] },
+      正官: { direction: '行政、法遵與品質制度', roles: ['行政管理', '法遵／內控', '公職', '品質管理'] },
+      偏印: { direction: '研究、科技與策略分析', roles: ['資料分析師', '軟體／研發人員', '研究員', '策略顧問'] },
+      正印: { direction: '教育、醫療照護與專業支持', roles: ['教師／培訓講師', '護理／醫療行政（須具資格）', '人力資源', '知識管理'] }
     };
-    const roles = [...new Set(dominantGods.flatMap(name => careerMap[name] || []))].slice(0, 6);
+    const selectedCareer = dominantGods.map(name => careerMap[name]).filter(Boolean);
+    const directions = [...new Set(selectedCareer.map(item => item.direction))];
+    const roles = [...new Set(selectedCareer.flatMap(item => item.roles))].slice(0, 8);
     const strongest = Object.entries(chart.elements).sort((a, b) => b[1].count - a[1].count)[0][0];
     const weakest = Object.entries(chart.elements).sort((a, b) => b[1].count - a[1].count).at(-1)[0];
-    const bodyMap = {
-      木: { areas: '肝胆功能体系、筋腱、眼部与情绪疏泄', advice: '避免久坐后突然高强度运动；安排伸展、户外活动与稳定休息。' },
-      火: { areas: '心与循环功能体系、睡眠及高温环境下的恢复', advice: '减少连续熬夜和长时间高压输出，运动后留足恢复时间。' },
-      土: { areas: '脾胃功能体系、消化吸收与肌肉状态', advice: '维持规律用餐、稳定作息和适量核心力量训练。' },
-      金: { areas: '肺与呼吸功能体系、皮肤及干燥环境适应', advice: '注意通风、补水和规律户外活动，季节转换时观察身体反应。' },
-      水: { areas: '肾与泌尿功能体系、骨骼、耳部及长期疲劳恢复', advice: '避免长期睡眠透支，寒冷环境注意保暖，并采用渐进式运动。' }
-    };
     const focusElements = [...new Set([strongest, weakest, forecast.years[0].annualElement])];
     const careerYears = [...forecast.years].sort((a, b) => b.career.score - a.career.score || a.year - b.year).slice(0, 3).map(item => item.year);
     return {
       roles,
+      directions,
       dominantGods,
       workStyle: `较适合目标与权限清楚、能留下具体成果，并允许${dominantGods.includes('比肩') || dominantGods.includes('伤官') || dominantGods.includes('偏印') ? '独立判断与方法改进' : '长期积累信誉与专业深度'}的工作环境。`,
-      development: `优先发展 ${roles.slice(0, 3).join('、')} 等职能；${careerYears.join('、')} 是未来十年事业推动信号相对集中的年份。`,
-      bodyFocus: focusElements.map(element => ({ element, ...bodyMap[element], role: element === strongest ? '表层较多' : element === weakest ? '表层较少' : '今年流年进入' }))
+      development: `先從 ${roles.slice(0, 3).join('、')} 中選一個最符合現有學歷與經驗的方向，補齊資格、作品或可量化成果；${careerYears.join('、')} 是未來十年事業推動信號相對集中的年份。`,
+      steps: [
+        `定位：從「${directions.join('／')}」中確定一條主線，不同時追逐過多職類。`,
+        `準備：比對 10 個真實職缺，把共同要求整理成三項能力與一份作品／案例。`,
+        `行動：先用實習、專案、證照或小型接案驗證適配度，再決定是否轉職；涉及護理、公職等職位須先取得法定資格。`
+      ],
+      bodyFocus: focusElements.map(element => ({ element, ...FIVE_ELEMENT_BODY_FOCUS[element], role: element === strongest ? '表層較多' : element === weakest ? '表層較少' : '今年流年進入' }))
     };
   }
 
@@ -1394,6 +1457,13 @@
   }
 
   function currentGuidanceHTML(forecast) {
+    const current = forecast.years[0];
+    const practicalActions = [
+      { label: '工作', text: `${current?.career?.summary || '先穩定既有職責。'} 接下來 30 天只設定一項可量化成果，並確認完成標準。` },
+      { label: '財務', text: `${current?.wealth?.summary || '先整理現金流。'} 每月固定記錄收入、必要支出、可調整支出與專案成本。` },
+      { label: '關係', text: `${current?.marriage?.summary || '以穩定溝通為主。'} 重要議題分成事實、感受、需求與可執行協議四步談。` },
+      { label: '健康', text: '連續 14 天記錄睡眠、精神、運動與不適部位；若症狀持續、加重或影響生活，直接就醫。' }
+    ];
     return `
       <section class="report-section forecast-section" id="current-year-section">
         <h2>${forecast.health.year} 年五行行动参考</h2>
@@ -1403,6 +1473,8 @@
           <article><small>最佳行动时间</small><b>${escapeHTML(forecast.actionWindow)}</b><p>${escapeHTML(forecast.actionFocus)}</p></article>
         </div>
         <div class="wellness-list">${forecast.health.details.map(item => `<p>${escapeHTML(item)}</p>`).join('')}</div>
+        <h3 class="action-list-title">今年可以直接做的事</h3>
+        <div class="annual-action-list">${practicalActions.map(item => `<article><b>${item.label}</b><p>${escapeHTML(item.text)}</p></article>`).join('')}</div>
         <p class="method-note">健康部分只作作息、饮食与活动节奏提示，不代替体检、诊断或治疗。</p>
       </section>`;
   }
@@ -1413,7 +1485,7 @@
       <section class="report-section career-health-section" id="career-health-section">
         <h2>职业发展与身体关注</h2>
         <div class="career-health-grid">
-          <article class="career-guide"><small>职业发展</small><h3>${escapeHTML(profile.dominantGods.join('＋'))}主轴</h3><div class="career-role-list">${profile.roles.map(role => `<span>${escapeHTML(role)}</span>`).join('')}</div><p>${escapeHTML(profile.workStyle)}</p><div class="life-advice"><b>发展建议</b>${escapeHTML(profile.development)}</div></article>
+          <article class="career-guide"><small>职业发展</small><h3>${escapeHTML(profile.directions.join('／'))}</h3><p class="career-axis">十神主軸：${escapeHTML(profile.dominantGods.join('＋'))}</p><h4>具體職位</h4><div class="career-role-list">${profile.roles.map(role => `<span>${escapeHTML(role)}</span>`).join('')}</div><p>${escapeHTML(profile.workStyle)}</p><div class="life-advice"><b>发展建议</b>${escapeHTML(profile.development)}</div><ol class="career-step-list">${profile.steps.map(step => `<li>${escapeHTML(step)}</li>`).join('')}</ol></article>
           <article class="body-guide"><small>身体关注</small><h3>传统五行日常观察</h3><div class="body-focus-list">${profile.bodyFocus.map(item => `<div><b>${item.element} · ${escapeHTML(item.role)}</b><p>关注：${escapeHTML(item.areas)}</p><small>${escapeHTML(item.advice)}</small></div>`).join('')}</div><p class="method-note">这里的“肝、心、脾、肺、肾”指传统中医功能体系，不等同现代医学的器官诊断。若有持续不适、疼痛或异常指标，应直接就医。</p></article>
         </div>
       </section>`;
@@ -1483,7 +1555,7 @@
           <section class="report-identity"><div><small>命造</small><b>${sexLabel}</b></div><div><small>公历出生</small><b>${escapeHTML(chart.civilTime)}</b></div><div><small>出生地点</small><b>${escapeHTML(birthPlace || '未记录')}</b></div><div><small>农历核对</small><b>${escapeHTML(birth.lunarInput || '未填写')}</b></div></section>
           <section class="report-section" id="overview-section"><h2>排盘核对</h2>${pillarHTML(chart)}<div class="time-proof"><span><small>民用时间</small><b>${escapeHTML(chart.civilTime)}</b></span><span><small>真太阳时</small><b>${escapeHTML(chart.trueSolarTime)}</b></span><span><small>时间校正</small><b>${chart.correctionMinutes >= 0 ? '+' : ''}${chart.correctionMinutes} 分钟</b></span></div>${chart.boundaryWarnings.map(item => `<p class="inline-warning">${escapeHTML(item)}</p>`).join('')}${detailChartHTML(chart)}</section>
           <section class="report-section conclusion-section" id="conclusion-section"><h2>命局性格总论</h2><p class="section-intro">以下结论由日主、月令、十神权重、表层五行与原局合冲共同生成，重点说明性格、决策、人际和事业表达，不只是重复四柱资料。</p><div class="human-narrative">${narrativeItems.map(item => `<article><small>${escapeHTML(item.label)}</small><p>${escapeHTML(item.text)}</p></article>`).join('')}</div><div class="conclusion-grid">${conclusionItems.map(item => `<article class="conclusion-card"><small>${escapeHTML(item.title)}</small><p>${escapeHTML(item.body)}</p><span>依据：${escapeHTML(item.evidence)}</span></article>`).join('')}</div></section>
-          <section class="report-section life-summary-section" id="life-summary-section"><h2>生辰综合小结</h2><p class="section-intro">把命局结构与未来十年流年结果合并阅读，直接整理使用者最关心的六项主题。</p><div class="life-summary-grid">${lifeItems.map(item => `<article class="life-summary-card"><header><span>${escapeHTML(item.title)}</span></header><p>${escapeHTML(item.summary)}</p><div class="life-advice"><b>建议</b>${escapeHTML(item.advice)}</div><small>依据：${escapeHTML(item.evidence)}</small></article>`).join('')}</div></section>
+          <section class="report-section life-summary-section" id="life-summary-section"><h2>生辰综合小结</h2><p class="section-intro">把命局结构与未来十年流年结果合并阅读，直接整理使用者最关心的六项主题。</p><div class="life-summary-grid">${lifeItems.map(item => `<article class="life-summary-card"><header><span>${escapeHTML(item.title)}</span></header><p>${escapeHTML(item.summary)}</p>${item.highlights?.length ? `<dl class="summary-detail-list">${item.highlights.map(detail => `<div><dt>${escapeHTML(detail.label)}</dt><dd>${escapeHTML(detail.text)}</dd></div>`).join('')}</dl>` : ''}<div class="life-advice"><b>建议</b>${escapeHTML(item.advice)}</div><small>依据：${escapeHTML(item.evidence)}</small></article>`).join('')}</div></section>
           ${careerHealthHTML(chart, forecast)}
           ${structureAnalysisHTML(chart)}
           <section class="report-section"><h2>命局结构</h2><p>${escapeHTML(report.structure)}</p><div class="chart-card"><div>${pillarHTML(chart)}</div><div>${elementBarsHTML(chart)}</div></div></section>
@@ -1493,8 +1565,8 @@
           ${currentGuidanceHTML(forecast)}
           ${decadeForecastHTML(forecast)}
           <section class="report-section"><h2>自我观察题</h2><ol>${report.reflection.map(item => `<li><p>${escapeHTML(item)}</p></li>`).join('')}</ol></section>
-          <section class="report-section"><h2>最终复盘</h2><div class="audit-box"><p>✓ 十年逐年列出婚姻、事业与财富结论及触发依据<br>✓ 健康部分只输出生活方式关注点，不作疾病诊断<br>✓ 财富部分不承诺收益，不以趋势替代风险管理<br>✓ 没有使用无法核验的古籍引文或死亡灾祸断言</p><p><b>推演边界：</b>${escapeHTML(forecast.method)}</p></div></section>
-          <section class="report-section"><p><b>AI 生成内容</b> · 模型：${escapeHTML(report.modelName)} · 备案信息：${escapeHTML(report.modelFiling)}</p><p>本报告用于传统历法文化研习与自我观察，不构成医疗诊断、投资建议、法律意见或人生重大决定依据。保存期限至 ${formatDate(report.expiresAt, false)}。</p></section>
+          <section class="report-section final-summary-section"><h2>命主结论总览</h2><div class="final-summary-grid">${lifeItems.map(item => `<article><b>${escapeHTML(item.title)}</b><p>${escapeHTML(item.summary)}</p><span>${escapeHTML(item.advice)}</span></article>`).join('')}</div><div class="audit-box"><p><b>推演复核：</b>十年逐年列出婚姻、事业与财富结论及触发依据；健康只作生活观察，不作疾病诊断；财富不承诺收益；未使用无法核验的古籍引文。</p><p><b>推演边界：</b>${escapeHTML(forecast.method)}</p></div></section>
+          <section class="report-section report-disclosure"><p class="generation-disclosure">AI 生成內容</p><p>本报告用于传统历法文化研习与自我观察，不构成医疗诊断、投资建议、法律意见或人生重大决定依据。保存期限至 ${formatDate(report.expiresAt, false)}。</p></section>
         </div>
       </div>`;
   }
