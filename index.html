@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ede2c8">
+  <link rel="icon" href="./assets/bazi-zhenyan-logo.png" type="image/png">
+  <meta name="description" content="八字真言——四柱排盘与传统历法分析">
+  <title>八字真言</title>
+  <link rel="stylesheet" href="./styles.css?v=20260815-11">
+</head>
+<body>
+  <div class="paper-noise" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#/home" aria-label="返回首页">
+      <span class="brand-seal" aria-hidden="true">
+        <img src="./assets/bazi-zhenyan-logo.png" alt="" width="42" height="42">
+      </span>
+      <span><b>八字真言</b><small>四柱排盘 · 十年详批</small></span>
+    </a>
+    <nav class="main-nav" aria-label="主导航">
+      <a href="#/home">首页</a>
+      <a href="#/start">开始体验</a>
+    </nav>
+  </header>
+
+  <div id="compliance-banner" class="compliance-banner" role="status"></div>
+  <main id="app" tabindex="-1"></main>
+
+  <footer class="site-footer">
+    <div>
+      <strong>八字真言</strong>
+      <p>四柱排盘、十神结构与未来十年趋势分析。</p>
+    </div>
+    <div class="footer-links">
+      <button class="text-button" data-action="privacy">隐私说明</button>
+      <button class="text-button" data-action="complaint">投诉与申诉</button>
+      <span>版本 v0.2.0</span>
+    </div>
+  </footer>
+
+  <dialog id="modal" class="modal">
+    <button class="modal-close" data-action="close-modal" aria-label="关闭">×</button>
+    <div id="modal-content"></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js?v=20260815-11" defer></script>
+</body>
+</html>

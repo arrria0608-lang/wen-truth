@@ -1,0 +1,6 @@
+feedback-server.log
+feedback-server-error.log
+data/
+*.tmp
+*.local
+
