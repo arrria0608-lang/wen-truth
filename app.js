@@ -1346,6 +1346,20 @@
     const keyNote = interaction === '六冲'
       ? `${annualBranch}冲日支${dayBranch}，属于关系与生活结构调整年，重要决定宜分阶段落地。`
       : `${strongestTheme}信号在三项中最强，适合把主要资源集中在可验证的一项成果上。`;
+    const actionByTheme = {
+      婚姻: '安排三次深度對話，依序確認價值觀、金錢與居住／家庭分工；單身者以穩定互動至少三個月再談承諾。',
+      事业: '在年初確定一個目標職位或專案，列出權限、資源、考核與截止日；年中用成果數據談升遷、轉職或加薪。',
+      财富: '先完成年度現金流與風險預算，再擴大業務、接案或第二收入；每一筆合作先寫清成本、分潤與退出條件。'
+    };
+    const cautionByTheme = {
+      婚姻: '避免在衝突最高點立即分手、結婚或承諾重大共同支出；不要用冷處理代替界線說明。',
+      事业: '避免只看職稱或短期薪資，忽略實際授權、工時、組織資源與可累積能力。',
+      财富: '避免因「流年偏吉」提高槓桿或追逐不熟悉標的；趨勢不能替代合約、成本與風險審查。'
+    };
+    const action = actionByTheme[strongestTheme];
+    const caution = interaction === '六冲'
+      ? `本年日支受沖，行程、關係或居住安排容易變動；${cautionByTheme[strongestTheme]}`
+      : cautionByTheme[strongestTheme];
 
     return {
       year,
@@ -1357,6 +1371,8 @@
       interaction: interaction || '无日支合冲',
       isKeyNode,
       keyNote,
+      action,
+      caution,
       title: `${annualStem}${annualBranch}年 · ${strongestTheme}${isKeyNode ? '关键节点' : '稳步推进'}`,
       marriage: { score: marriageScore, ...marriageBand, summary: marriageSummary, evidence: marriageEvidence.join('；') },
       career: { score: careerScore, ...careerBand, summary: careerSummary, evidence: careerEvidence.join('；') },
@@ -1519,6 +1535,7 @@
             <div class="year-content">
               <h3>${escapeHTML(item.title)}</h3>
               <p class="key-note">${escapeHTML(item.keyNote)}</p>
+              ${item.isKeyNode ? `<div class="key-action-panel"><div><b>這一年要做</b><span>${escapeHTML(item.action)}</span></div><div><b>需要注意</b><span>${escapeHTML(item.caution)}</span></div></div>` : ''}
               <div class="trend-grid">
                 ${[['婚姻', item.marriage], ['事业', item.career], ['财富', item.wealth]].map(([label, trend]) => `<section class="trend-card ${trend.className}"><header><b>${label}</b><span>${trend.label}</span></header><p>${escapeHTML(trend.summary)}</p><small>依据：${escapeHTML(trend.evidence)}</small></section>`).join('')}
               </div>
@@ -1687,12 +1704,12 @@
     const groups = [
       { title: '封面与排盘', lines: ['八字真言命理分析报告', `报告编号 ${report.reportNo}`, `生成时间 ${formatDate(report.createdAt)}`, '', `四柱：${report.chart.pillars.map(item => item.text).join('　')}`, `十神：${report.chart.pillars.map((item, index) => index === 2 ? '日主' : tenGodName(report.chart.pillars[2].stemIndex, item.stemIndex)).join('　')}`, `民用时间：${report.chart.civilTime}`, `真太阳时：${report.chart.trueSolarTime}`, `校正：${report.chart.correctionMinutes >= 0 ? '+' : ''}${report.chart.correctionMinutes} 分钟`, '', '【宫位与神煞】', ...shenshaLines] },
       { title: '命局性格总论', lines: [...narrativeItems.flatMap(item => [`【${item.label}】`, item.text, '']), ...conclusionItems.flatMap(item => [`【${item.title}】`, item.body, `依据：${item.evidence}`, ''])] },
-      { title: '生辰综合小结', lines: lifeItems.flatMap(item => [`【${item.title}】`, item.summary, `建议：${item.advice}`, `依据：${item.evidence}`, '']) },
-      { title: '职业发展与身体关注', lines: ['【适合的发展方向】', careerHealth.roles.join('、'), careerHealth.workStyle, careerHealth.development, '', '【身体关注】', ...careerHealth.bodyFocus.flatMap(item => [`${item.element} · ${item.role}`, `关注：${item.areas}`, `日常建议：${item.advice}`, '']), '身体部分为传统五行生活观察，不作疾病诊断。'] },
+      { title: '生辰综合小结', lines: lifeItems.flatMap(item => [`【${item.title}】`, item.summary, ...(item.highlights || []).map(detail => `${detail.label}：${detail.text}`), `建议：${item.advice}`, `依据：${item.evidence}`, '']) },
+      { title: '职业发展与身体关注', lines: ['【主轴领域】', careerHealth.directions.join('／'), '【具体职位】', careerHealth.roles.join('、'), careerHealth.workStyle, careerHealth.development, ...careerHealth.steps.map(step => `行动：${step}`), '', '【身体关注】', ...careerHealth.bodyFocus.flatMap(item => [`${item.element} · ${item.role}`, `关注：${item.areas}`, `日常建议：${item.advice}`, '']), '身体部分为传统五行生活观察，不作疾病诊断。'] },
       { title: '十神与财官结构', lines: ['【十神结构】', `常规结构 ${profile.conventionalPercent}%　变动结构 ${profile.variablePercent}%`, Object.entries(profile.tenGodCounts).map(([name, count]) => `${name}${count}`).join('、'), '', '【表层承载结构】', `同类与印星 ${profile.surfaceSupportPercent}%　其余五行 ${100 - profile.surfaceSupportPercent}%`, '此比例不能直接命名为身强身弱或实际担财能力。', '', '【财星落位】', ...(profile.positions.wealth.length ? profile.positions.wealth : ['原局表层未检出财星']), '', '【官杀落位】', ...(profile.positions.career.length ? profile.positions.career : ['原局表层未检出官杀']), '', '【地支关系】', ...(relations.length ? relations.map(item => `${item.members} ${item.type}（${item.positions}）`) : ['未触发本版已收录的六合、六冲或三合规则'])] },
       { title: '结构与古籍依据', lines: ['【命局结构】', report.structure, '', '【五行结构】', report.elements, '', '【主要据典】', ...CLASSIC_FRAMEWORK.flatMap(item => [`《${item.book}》｜${item.focus}`, item.scope]), '', '【已核验原文】', ...(report.classics.length ? report.classics.flatMap(item => [`《${item.book}》 ${item.location}`, item.text, `规则：${item.rule}`, '']) : ['当前未附可逐页核验的原文，未生成伪造引文。凡古籍无据者，不妄断。'])] },
       { title: `${forecast.health.year} 年行动参考`, lines: ['【生活健康关注】', forecast.health.headline, ...forecast.health.details, '', '【贵人方位】', forecast.nobleDirection, '', '【最佳行动时间】', forecast.actionWindow, forecast.actionFocus] },
-      { title: '十年婚姻、事业与财富', lines: ['【关键节点】', ...(forecast.keyYears.length ? forecast.keyYears : ['本周期以稳定推进为主']), '', ...forecast.years.flatMap(item => [`${item.year} ${item.pillar}　大运${item.luckPillar || '未起'}　${item.title}`, `婚姻：${item.marriage.label}｜${item.marriage.summary}`, `事业：${item.career.label}｜${item.career.summary}`, `财富：${item.wealth.label}｜${item.wealth.summary}`, `节点：${item.keyNote}`, '']), '', '【推演方法】', forecast.method] }
+      { title: '十年婚姻、事业与财富', lines: ['【关键节点】', ...(forecast.keyYears.length ? forecast.keyYears : ['本周期以稳定推进为主']), '', ...forecast.years.flatMap(item => [`${item.year} ${item.pillar}　大运${item.luckPillar || '未起'}　${item.title}`, `婚姻：${item.marriage.label}｜${item.marriage.summary}`, `事业：${item.career.label}｜${item.career.summary}`, `财富：${item.wealth.label}｜${item.wealth.summary}`, `节点：${item.keyNote}`, ...(item.isKeyNode ? [`要做：${item.action}`, `注意：${item.caution}`] : []), '']), '', '【推演方法】', forecast.method] }
     ];
     groups.forEach((group, index) => setTimeout(() => downloadReportCanvas(report, group, index + 1, groups.length), index * 450));
     track('report_images_saved', { reportId, count: groups.length });
