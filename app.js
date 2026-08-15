@@ -39,6 +39,15 @@
     }
   };
 
+  const cloudAdminState = {
+    initialized: false,
+    loading: false,
+    authenticated: false,
+    reports: [],
+    query: '',
+    error: ''
+  };
+
   const MAINLAND_REGIONS = [
     ['11', '北京市', 116.41, ['北京市']], ['12', '天津市', 117.20, ['天津市']],
     ['13', '河北省', 114.52, ['石家庄市','唐山市','秦皇岛市','邯郸市','邢台市','保定市','张家口市','承德市','沧州市','廊坊市','衡水市']],
@@ -71,7 +80,7 @@
     ['64', '宁夏回族自治区', 106.23, ['银川市','石嘴山市','吴忠市','固原市','中卫市']],
     ['65', '新疆维吾尔自治区', 87.62, ['乌鲁木齐市','克拉玛依市','吐鲁番市','哈密市','昌吉回族自治州','博尔塔拉蒙古自治州','巴音郭楞蒙古自治州','阿克苏地区','克孜勒苏柯尔克孜自治州','喀什地区','和田地区','伊犁哈萨克自治州','塔城地区','阿勒泰地区','石河子市','阿拉尔市','图木舒克市','五家渠市','北屯市','铁门关市','双河市','可克达拉市','昆玉市','胡杨河市','新星市','白杨市']],
     ['71', '台灣', 121.00, ['台北市','新北市','桃園市','台中市','台南市','高雄市','基隆市','新竹市','嘉義市','新竹縣','苗栗縣','彰化縣','南投縣','雲林縣','嘉義縣','屏東縣','宜蘭縣','花蓮縣','台東縣','澎湖縣','金門縣','連江縣'], 'Asia/Taipei']
-  ].filter(([id]) => id === '71').map(([id, name, longitude, cities, timezone = 'Asia/Shanghai']) => ({ id, name, longitude, cities, timezone }));
+  ].filter(([id]) => id !== '71').map(([id, name, longitude, cities, timezone = 'Asia/Shanghai']) => ({ id, name, longitude, cities, timezone }));
   const TAIWAN_CITY_LONGITUDES = {
     '台北市': 121.5654, '新北市': 121.4628, '桃園市': 121.3010, '台中市': 120.6736,
     '台南市': 120.2270, '高雄市': 120.3014, '基隆市': 121.7392, '新竹市': 120.9675,
@@ -152,20 +161,22 @@
     ['阳历', '陽曆'], ['阴历', '陰曆'], ['农历', '農曆'], ['公历', '公曆'], ['里程', '里程'], ['干支', '干支'], ['天干', '天干']
   ];
   const TRADITIONAL_PAIRS = `万萬|与與|专專|业業|东東|丝絲|两兩|严嚴|个個|临臨|为為|丽麗|举舉|义義|乌烏|乐樂|乔喬|习習|乡鄉|书書|买買|乱亂|争爭|于於|亏虧|云雲|亚亞|产產|亲親|亿億|仅僅|从從|仓倉|仪儀|们們|价價|众眾|优優|会會|伟偉|传傳|伤傷|伦倫|伪偽|体體|余餘|侠俠|侣侶|侧側|侨僑|俭儉|债債|倾傾|储儲|儿兒|兑兌|党黨|兰蘭|关關|兴興|养養|兽獸|内內|冈岡|册冊|写寫|军軍|农農|冲沖|决決|况況|冻凍|净淨|凉涼|减減|凤鳳|凭憑|凯凱|别別|删刪|则則|剑劍|剥剝|剧劇|办辦|务務|动動|励勵|劳勞|势勢|区區|医醫|华華|协協|单單|卖賣|卢盧|卫衛|却卻|厅廳|历曆|压壓|县縣|参參|双雙|发發|变變|叠疊|叶葉|号號|启啟|听聽|吴吳|响響|问問|团團|园園|围圍|国國|图圖|圆圓|圣聖|场場|坏壞|块塊|坚堅|坛壇|坝壩|壮壯|声聲|壳殼|处處|备備|复復|够夠|头頭|夹夾|夺奪|奋奮|奖獎|妇婦|妈媽|孙孫|学學|宁寧|宝寶|实實|审審|宫宮|寻尋|对對|导導|将將|尔爾|尘塵|尝嘗|层層|岁歲|岂豈|岗崗|岛島|岭嶺|峡峽|币幣|师師|带帶|帮幫|并並|庄莊|庆慶|庐廬|库庫|应應|庙廟|废廢|开開|异異|弃棄|张張|强強|归歸|当當|录錄|彻徹|征徵|径徑|忆憶|忧憂|态態|怀懷|总總|恋戀|恶惡|恳懇|恼惱|悦悅|惊驚|惧懼|惨慘|惩懲|惯慣|愿願|戏戲|战戰|户戶|扑撲|执執|扩擴|扫掃|扬揚|扰擾|抚撫|抢搶|护護|报報|担擔|拟擬|拢攏|择擇|挂掛|挚摯|损損|换換|据據|掷擲|揽攬|摆擺|摇搖|摄攝|携攜|数數|敌敵|敛斂|斗鬥|断斷|无無|旧舊|时時|显顯|晋晉|昼晝|晓曉|暂暫|术術|机機|杀殺|杂雜|权權|条條|来來|杨楊|极極|构構|标標|样樣|树樹|档檔|桥橋|检檢|楼樓|横橫|欢歡|欧歐|残殘|毕畢|气氣|汉漢|汤湯|沟溝|没沒|洁潔|浅淺|济濟|浑渾|浓濃|测測|涛濤|润潤|涩澀|渐漸|渔漁|温溫|湾灣|湿濕|滚滾|满滿|滤濾|灭滅|灯燈|灵靈|灾災|炉爐|烂爛|点點|热熱|爱愛|爷爺|牵牽|牺犧|状狀|独獨|狭狹|猎獵|猫貓|献獻|环環|现現|琼瓊|电電|画畫|畅暢|疗療|疯瘋|监監|盖蓋|盘盤|着著|睁睜|瞒瞞|矿礦|码碼|确確|碍礙|礼禮|祸禍|离離|种種|积積|称稱|稳穩|穷窮|竞競|笔筆|笼籠|签簽|简簡|类類|紧緊|纠糾|红紅|约約|级級|纪紀|纤纖|纬緯|纯純|纲綱|纳納|纵縱|纷紛|纸紙|纹紋|线線|练練|组組|细細|织織|终終|经經|结結|绕繞|给給|络絡|绝絕|统統|继繼|绩績|续續|绳繩|维維|综綜|绿綠|缘緣|编編|缓緩|缠纏|缩縮|网網|罗羅|罚罰|职職|联聯|肃肅|胜勝|胀脹|肤膚|肾腎|胆膽|脑腦|脉脈|脏臟|脸臉|腾騰|舰艦|艺藝|节節|苏蘇|范範|药藥|获獲|营營|蓝藍|虑慮|虚虛|虫蟲|虽雖|补補|装裝|袭襲|见見|观觀|规規|视視|览覽|觉覺|触觸|誉譽|计計|订訂|认認|让讓|议議|讯訊|记記|讲講|许許|论論|设設|访訪|证證|评評|识識|诉訴|诊診|词詞|译譯|试試|诗詩|诚誠|话話|诞誕|询詢|该該|详詳|语語|误誤|说說|读讀|课課|谁誰|调調|谈談|谅諒|谋謀|谓謂|谢謝|谱譜|负負|财財|贡貢|贫貧|货貨|贪貪|购購|贯貫|贵貴|贷貸|费費|贺賀|资資|赌賭|赏賞|赔賠|赖賴|赚賺|赛賽|赞讚|赠贈|赢贏|赶趕|趋趨|跃躍|车車|轨軌|转轉|轮輪|软軟|较較|载載|辅輔|辆輛|辈輩|辉輝|边邊|辽遼|达達|迁遷|过過|运運|还還|进進|远遠|违違|连連|迟遲|适適|选選|递遞|逻邏|遗遺|邮郵|邻鄰|郑鄭|酝醞|鉴鑒|钦欽|钩鉤|钝鈍|钟鐘|钢鋼|钥鑰|钱錢|钻鑽|铁鐵|铸鑄|铃鈴|铜銅|铭銘|银銀|铺鋪|链鏈|销銷|锁鎖|错錯|镇鎮|镜鏡|长長|门門|间間|闻聞|阁閣|阅閱|队隊|阶階|际際|陆陸|阳陽|阴陰|陈陳|陕陝|险險|随隨|隐隱|难難|雾霧|静靜|顶頂|项項|顺順|须須|顾顧|顿頓|预預|领領|频頻|题題|颜顏|额額|风風|飞飛|饭飯|饮飲|饱飽|饰飾|馆館|驱驅|验驗|骂罵|鱼魚|鸟鳥|鸡雞|鸣鳴|鸭鴨|鹅鵝|黄黃|齐齊|齿齒|龙龍|后後|汇匯|台臺|页頁|输輸|诺諾|吓嚇|辞辭|请請`.split('|').map(pair => [pair[0], pair.slice(1)]);
-  function traditionalize(value) {
+  const SIMPLIFIED_PHRASES = TRADITIONAL_PHRASES.map(([simplified, traditional]) => [traditional, simplified]);
+  const SIMPLIFIED_PAIRS = TRADITIONAL_PAIRS.map(([simplified, traditional]) => [traditional, simplified]);
+  function simplifyChinese(value) {
     let text = String(value ?? '');
-    TRADITIONAL_PHRASES.forEach(([from, to]) => { text = text.replaceAll(from, to); });
-    TRADITIONAL_PAIRS.forEach(([from, to]) => { text = text.replaceAll(from, to); });
-    return text.replaceAll('臺灣', '台灣');
+    SIMPLIFIED_PHRASES.forEach(([from, to]) => { text = text.replaceAll(from, to); });
+    SIMPLIFIED_PAIRS.forEach(([from, to]) => { text = text.replaceAll(from, to); });
+    return text;
   }
-  function localizeTraditional(root) {
+  function localizeSimplified(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     const nodes = [];
     while (walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(node => { const next = traditionalize(node.nodeValue); if (next !== node.nodeValue) node.nodeValue = next; });
+    nodes.forEach(node => { const next = simplifyChinese(node.nodeValue); if (next !== node.nodeValue) node.nodeValue = next; });
     root.querySelectorAll?.('[placeholder],[title],[aria-label]').forEach(element => {
       ['placeholder', 'title', 'aria-label'].forEach(attribute => {
-        if (element.hasAttribute(attribute)) element.setAttribute(attribute, traditionalize(element.getAttribute(attribute)));
+        if (element.hasAttribute(attribute)) element.setAttribute(attribute, simplifyChinese(element.getAttribute(attribute)));
       });
     });
   }
@@ -216,6 +227,7 @@
   }
   function go(path) { location.hash = path.startsWith('#') ? path.slice(1) : path; }
   function focusPage() { app.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: 'instant' }); }
+  function isOwnerDevice() { return location.hostname === '127.0.0.1' || location.hostname === 'localhost'; }
 
   function homeView() {
     return `
@@ -246,15 +258,21 @@
           <div class="feature-grid">
             <article class="feature-card"><div class="feature-icon">校</div><h3>确定性排盘</h3><p>历法计算与 AI 成文分离。节气、时区、真太阳时和换日规则保留版本记录。</p></article>
             <article class="feature-card"><div class="feature-icon">据</div><h3>古籍可追溯</h3><p>只有经命理师核验书名、版本、篇章和页码的资料，才能进入正式报告。</p></article>
-            <article class="feature-card"><div class="feature-icon">审</div><h3>双重审核</h3><p>报告发布前检查无来源判断、医疗越界、投资承诺、恐吓措辞与 AI 标识。</p></article>
+            <article class="feature-card"><div class="feature-icon">审</div><h3>双重审核</h3><p>报告发布前核对古籍来源、规则依据与结论一致性，确保内容清楚可核验。</p></article>
           </div>
         </section>
 
+      </div>`;
+  }
+
+  function feedbackView() {
+    return `
+      <div class="page feedback-page">
         <section class="section feedback-section" id="feedback-section">
           <div class="section-heading"><span class="eyebrow">使用反馈</span><h2>留下你的真实感受</h2><p>欢迎告诉我们排盘是否清楚、哪些解读最有帮助，以及希望继续改进的地方。</p></div>
           <div class="feedback-layout">
             <form id="feedback-form" class="feedback-form">
-              <div class="field"><label for="feedback-name">称呼（选填）</label><input id="feedback-name" name="name" maxlength="20" placeholder="例如：试用者"></div>
+              <div class="field"><label for="feedback-name">称呼（选填）</label><input id="feedback-name" name="name" maxlength="20" placeholder="例如：小美"></div>
               <div class="field"><label for="feedback-message">留言内容</label><textarea id="feedback-message" name="message" rows="5" maxlength="300" required placeholder="请写下实际使用感受，最多 300 字"></textarea></div>
               <label class="checkbox"><input name="publicConsent" type="checkbox" required><span>我知道此留言会公开显示；请勿填写出生时间、电话或其他个人资料。</span></label>
               <p id="feedback-message-status" class="form-message" role="alert"></p>
@@ -271,7 +289,7 @@
     return `<article class="feedback-item"><header><b>${escapeHTML(item.name || '试用者')}</b><time>${escapeHTML(formatDate(item.createdAt, false))}</time></header><p>${escapeHTML(item.message)}</p></article>`;
   }
   async function loadFeedbackWall() {
-    const list = $('#feedback-list');
+    const list = $('#feedback-list') || $('#owner-feedback-list');
     if (!list) return;
     try {
       const response = await fetch('/api/feedback', { cache: 'no-store' });
@@ -279,9 +297,11 @@
       const data = await response.json();
       const items = Array.isArray(data.items) ? data.items : [];
       list.innerHTML = items.length ? items.map(feedbackItemHTML).join('') : '<p class="feedback-empty">还没有留言，欢迎成为第一位。</p>';
+      const count = $('#owner-feedback-count'); if (count) count.textContent = String(items.length);
     } catch (_) {
       const items = fallbackFeedback();
       list.innerHTML = items.length ? items.slice().reverse().map(feedbackItemHTML).join('') : '<p class="feedback-empty">还没有留言，欢迎成为第一位。</p>';
+      const count = $('#owner-feedback-count'); if (count) count.textContent = String(items.length);
     }
   }
   async function submitFeedback(form) {
@@ -319,9 +339,9 @@
           <div class="form-grid">
             <div class="field birth-date-field"><label id="birth-date-label">出生日期（阳历）</label><div class="wheel-picker date-wheel" aria-label="出生年月日滚轮选择"><label class="picker-part"><span>年</span><select id="birth-year" aria-label="出生年份"><option value="">----</option>${yearOptions}</select></label><label class="picker-part"><span>月</span><select id="birth-month" aria-label="出生月份"><option value="">--</option>${monthOptions}</select></label><label class="picker-part"><span>日</span><select id="birth-day" aria-label="出生日期"><option value="">--</option>${dayOptions}</select></label></div><div class="calendar-meta"><label id="lunar-leap-field" class="lunar-leap" hidden><input id="lunar-leap" type="checkbox"><span>本月为闰月</span></label><small id="calendar-help">采用阳历日期计算节气与四柱。</small></div><input id="calendar-type" name="calendarType" type="hidden" value="solar"><input id="solar-date" name="solarDate" type="hidden"><input id="lunar-input" name="lunarInput" type="hidden"></div>
             <div class="field"><label>出生时间（24 小时制）</label><div class="wheel-picker time-wheel" aria-label="24小时出生时间滚轮选择"><label class="picker-part"><span>小时</span><select id="birth-hour" aria-label="出生小时"><option value="">--</option>${hourOptions}</select></label><span class="time-colon">:</span><label class="picker-part"><span>分钟</span><select id="birth-minute" aria-label="出生分钟"><option value="">--</option>${minuteOptions}</select></label></div><input id="birth-time" name="birthTime" type="hidden"><small>00:00 至 23:59；不确定时请勿随意猜测分钟。</small></div>
-            <div class="field full location-search-field"><label for="location-search">搜尋出生地</label><input id="location-search" type="search" autocomplete="off" placeholder="輸入台灣縣市，例如：台北市"><div id="location-results" class="location-results" hidden></div></div>
-            <div class="field"><label for="birth-province">出生地區</label><select id="birth-province" name="provinceId" required>${MAINLAND_REGIONS.map(region => `<option value="${region.id}" selected>${region.name}</option>`).join('')}</select></div>
-            <div class="field"><label for="birth-city">出生縣市</label><select id="birth-city" name="cityId" required disabled><option value="">請先選擇地區</option></select><small id="city-coordinate-note">選擇縣市後用於真太陽時校正。</small></div>
+            <div class="field full location-search-field"><label for="location-search">搜索出生地</label><input id="location-search" type="search" autocomplete="off" placeholder="输入省份或城市，例如：广东深圳"><div id="location-results" class="location-results" hidden></div></div>
+            <div class="field"><label for="birth-province">出生省份</label><select id="birth-province" name="provinceId" required><option value="">请选择省级地区</option>${MAINLAND_REGIONS.map(region => `<option value="${region.id}">${region.name}</option>`).join('')}</select></div>
+            <div class="field"><label for="birth-city">出生城市</label><select id="birth-city" name="cityId" required disabled><option value="">请先选择省级地区</option></select><small id="city-coordinate-note">选择城市后用于真太阳时校正。</small></div>
             <div class="field"><label for="birth-district">出生区县（选填）</label><input id="birth-district" name="district" type="text" maxlength="30" placeholder="例：东城区、南山区"></div>
             <div class="field"><span>性别</span><select name="sex" required><option value="">请选择</option><option value="female">女</option><option value="male">男</option><option value="unspecified">不便说明</option></select></div>
             <div class="field full chart-rule-panel"><div><small>时间校正</small><b>真太阳时</b><span>按出生地经度与均时差校正</span></div><div><small>换日规则</small><b>23:00 子初</b><span>用于日柱与时柱计算</span></div><div><small>月份边界</small><b>节气切月</b><span>不按农历初一切换月柱</span></div></div>
@@ -553,8 +573,8 @@
     const syncCity = () => {
       const cities = CITIES.filter(city => city.provinceId === provinceSelect.value);
       citySelect.disabled = cities.length === 0;
-      citySelect.innerHTML = `<option value="">${cities.length ? '請選擇縣市' : '請先選擇地區'}</option>${cities.map(city => `<option value="${city.id}">${city.cityName}</option>`).join('')}`;
-      coordinateNote.textContent = cities.length ? `已載入台灣 ${cities.length} 個縣市；將依縣市代表經度校正真太陽時。` : '選擇縣市後用於真太陽時校正。';
+      citySelect.innerHTML = `<option value="">${cities.length ? '请选择城市' : '请先选择省级地区'}</option>${cities.map(city => `<option value="${city.id}">${city.cityName}</option>`).join('')}`;
+      coordinateNote.textContent = cities.length ? `已加载 ${cities.length} 个城市；将按当前地区参考经度校正真太阳时。` : '选择城市后用于真太阳时校正。';
     };
     const selectCity = city => {
       provinceSelect.value = city.provinceId;
@@ -562,7 +582,7 @@
       citySelect.value = city.id;
       locationSearch.value = city.name;
       locationResults.hidden = true;
-      coordinateNote.textContent = `${city.name} · 台灣時間 UTC+8 · 將進行真太陽時校正。`;
+      coordinateNote.textContent = `${city.name} · 中国标准时间 UTC+8 · 将进行真太阳时校正。`;
     };
     const searchLocations = () => {
       const normalizePlace = value => String(value).replace(/臺/g, '台').replace(/[省市自治区特别行政区自治州地区盟\s]/g, '');
@@ -571,7 +591,7 @@
       const matches = CITIES.filter(city => normalizePlace(city.name).includes(keyword) || normalizePlace(city.provinceName).includes(keyword) || normalizePlace(city.cityName).includes(keyword)).slice(0, 18);
       locationResults.innerHTML = matches.length
         ? matches.map(city => `<button type="button" data-city-choice="${city.id}"><b>${city.cityName}</b><span>${city.provinceName}</span></button>`).join('')
-        : '<p>沒有找到相符縣市，請改用地區與縣市下拉選擇。</p>';
+        : '<p>没有找到相符城市，请改用省份与城市下拉选择。</p>';
       locationResults.hidden = false;
     };
 
@@ -864,6 +884,10 @@
         const reports = load(KEYS.reports, []);
         reports.push(report);
         save(KEYS.reports, reports);
+        syncReportToCloud(report).catch(error => {
+          console.warn('云端报告同步失败，将保留本机副本。', error);
+          track('report_cloud_sync_failed', { reportId: report.id });
+        });
         job.status = 'ready';
         job.reportId = report.id;
         job.progress = 100;
@@ -876,6 +900,31 @@
         go(`/report?id=${job.reportId}`);
       } else render();
     }, 620);
+  }
+
+  async function requestJSON(url, options = {}) {
+    const headers = { 'X-Requested-With': 'BaziZhenyanWeb', ...(options.headers || {}) };
+    if (options.body && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    const response = await fetch(url, { credentials: 'same-origin', cache: 'no-store', ...options, headers });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(payload.message || `请求失败（${response.status}）`);
+      error.status = response.status;
+      throw error;
+    }
+    return payload;
+  }
+
+  async function syncReportToCloud(report) {
+    if (isOwnerDevice()) return { stored: false, localOnly: true };
+    const lead = load(KEYS.leads, []).find(item => item.id === report.leadId);
+    const order = load(KEYS.orders, []).find(item => item.id === report.orderId);
+    const result = await requestJSON('/api/reports', {
+      method: 'POST',
+      body: JSON.stringify({ report, lead, order })
+    });
+    track('report_cloud_synced', { reportId: report.id });
+    return result;
   }
 
   function structureProfile(chart) {
@@ -1592,6 +1641,145 @@
     return `<div class="page narrow"><div class="empty-state"><h2>暂时无法继续</h2><p>${escapeHTML(message)}</p><a class="btn btn-primary" href="${href}">${escapeHTML(label)}</a></div></div>`;
   }
 
+  function ownerView() {
+    const leads = load(KEYS.leads, []);
+    const reports = load(KEYS.reports, []);
+    const orders = load(KEYS.orders, []);
+    const events = load(KEYS.events, []);
+    const recentReports = [...reports].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 12);
+    return `
+      <div class="page owner-page">
+        <div class="report-head"><div><span class="eyebrow">僅限本機</span><h2>後台資訊</h2><p>此入口只在你的電腦以 127.0.0.1 或 localhost 開啟時顯示；公開分享網址不提供此頁。</p></div><span class="tag green">本機專屬</span></div>
+        <div class="stat-grid owner-stats"><article class="stat-card"><b>${leads.length}</b><small>已填資料</small></article><article class="stat-card"><b>${reports.length}</b><small>生成報告</small></article><article class="stat-card"><b>${orders.length}</b><small>模擬訂單</small></article><article class="stat-card"><b id="owner-feedback-count">—</b><small>公開留言</small></article></div>
+        <div class="owner-grid">
+          <section class="panel"><div class="owner-panel-head"><div><span class="eyebrow">報告紀錄</span><h3>最近生成</h3></div><button class="btn btn-soft" type="button" data-action="export-owner-data">匯出後台資料</button></div>
+            ${recentReports.length ? `<div class="table-wrap"><table><thead><tr><th>報告編號</th><th>生成時間</th><th>出生地</th><th></th></tr></thead><tbody>${recentReports.map(report => `<tr><td>${escapeHTML(report.reportNo)}</td><td>${formatDate(report.createdAt)}</td><td>${escapeHTML(report.chart?.city?.name || '未記錄')}</td><td><a href="#/report?id=${encodeURIComponent(report.id)}">查看</a></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty-state">尚未生成報告。</div>'}
+          </section>
+          <section class="panel"><div class="owner-panel-head"><div><span class="eyebrow">使用者意見</span><h3>最近留言</h3></div><small>由公開留言 API 載入</small></div><div id="owner-feedback-list" class="feedback-list owner-feedback-list"><p class="feedback-loading">正在載入留言…</p></div></section>
+        </div>
+        <section class="panel owner-data-note"><h3>資料說明</h3><p>本頁讀取目前瀏覽器保存的 ${events.length} 筆操作事件與本機報告資料。公開網址的其他使用者無法透過這個頁面讀取你瀏覽器中的出生資料或報告。</p></section>
+      </div>`;
+  }
+
+  function exportOwnerData() {
+    if (!isOwnerDevice()) return toast('後台資料只能在本機匯出');
+    const payload = {
+      exportedAt: nowISO(),
+      leads: load(KEYS.leads, []), orders: load(KEYS.orders, []), reports: load(KEYS.reports, []),
+      jobs: load(KEYS.jobs, []), events: load(KEYS.events, [])
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob); link.download = `bazi-owner-export-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(link.href);
+    toast('後台資料已匯出');
+  }
+
+  function cloudAdminView() {
+    if (!cloudAdminState.initialized || cloudAdminState.loading) {
+      return `<div class="page narrow admin-cloud-page"><section class="panel admin-login-panel"><span class="eyebrow">安全后台</span><h2>正在验证管理员身份</h2><p>请稍候，系统正在连接云端报告库。</p><div class="admin-loading" aria-label="加载中"></div></section></div>`;
+    }
+    if (!cloudAdminState.authenticated) {
+      return `<div class="page narrow admin-cloud-page">
+        <section class="panel admin-login-panel">
+          <span class="eyebrow">八字真言 · 管理后台</span>
+          <h2>管理员登录</h2>
+          <p>登录后可跨设备查看、搜索、下载及删除云端报告。账号验证在服务器端完成。</p>
+          ${cloudAdminState.error ? `<p class="inline-danger">${escapeHTML(cloudAdminState.error)}</p>` : ''}
+          <form id="cloud-admin-login-form" class="admin-login-form">
+            <div class="field"><label for="admin-username">管理员账号</label><input id="admin-username" name="username" autocomplete="username" required></div>
+            <div class="field"><label for="admin-password">密码</label><input id="admin-password" name="password" type="password" autocomplete="current-password" required></div>
+            <button class="btn btn-primary" type="submit">登录后台</button>
+          </form>
+        </section>
+      </div>`;
+    }
+    const query = cloudAdminState.query.trim().toLowerCase();
+    const reports = cloudAdminState.reports.filter(item => !query || [item.reportNo, item.id, item.city, item.sex, item.createdAt].some(value => String(value || '').toLowerCase().includes(query)));
+    const today = new Date().toISOString().slice(0, 10);
+    const todayCount = cloudAdminState.reports.filter(item => String(item.createdAt || '').startsWith(today)).length;
+    return `<div class="page admin-cloud-page">
+      <div class="report-head admin-cloud-head"><div><span class="eyebrow">生产后台</span><h2>云端报告管理</h2><p>报告由 EdgeOne Pages Functions 写入云端 KV，仅管理员登录后可读取。</p></div><button class="btn btn-soft" data-action="cloud-admin-logout">退出登录</button></div>
+      ${cloudAdminState.error ? `<p class="inline-danger">${escapeHTML(cloudAdminState.error)}</p>` : ''}
+      <div class="stat-grid owner-stats"><article class="stat-card"><b>${cloudAdminState.reports.length}</b><small>全部报告</small></article><article class="stat-card"><b>${todayCount}</b><small>今日生成</small></article><article class="stat-card"><b>${reports.length}</b><small>当前筛选</small></article><article class="stat-card"><b>365</b><small>保存天数</small></article></div>
+      <section class="panel admin-report-panel">
+        <div class="owner-panel-head"><div><span class="eyebrow">报告记录</span><h3>最近生成</h3></div><form id="admin-report-search-form" class="admin-search"><label class="sr-only" for="admin-report-query">搜索报告</label><input id="admin-report-query" name="query" value="${escapeHTML(cloudAdminState.query)}" placeholder="报告编号、城市或日期"><button class="btn btn-soft" type="submit">搜索</button></form></div>
+        ${reports.length ? `<div class="table-wrap"><table class="admin-report-table"><thead><tr><th>报告编号</th><th>生成时间</th><th>出生地</th><th>命造</th><th>状态</th><th>操作</th></tr></thead><tbody>${reports.map(item => `<tr><td><b>${escapeHTML(item.reportNo || item.id)}</b></td><td>${escapeHTML(formatDate(item.createdAt))}</td><td>${escapeHTML(item.city || '未记录')}</td><td>${escapeHTML(item.sex || '未记录')}</td><td><span class="tag green">已保存</span></td><td><div class="admin-row-actions"><button class="text-button" data-action="cloud-report-open" data-id="${escapeHTML(item.id)}">查看</button><button class="text-button danger-text" data-action="cloud-report-delete" data-id="${escapeHTML(item.id)}" data-report-no="${escapeHTML(item.reportNo || item.id)}">删除</button></div></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty-state"><h3>没有符合条件的报告</h3><p>新报告生成后会自动同步到这里。</p></div>'}
+      </section>
+      <section class="panel owner-data-note"><h3>数据说明</h3><p>后台使用 HttpOnly 安全 Cookie 验证身份；密码与会话密钥只保存在 EdgeOne 环境变量，不写入网页代码。报告默认保存 365 日，删除操作会同时移除云端正文与索引。</p></section>
+    </div>`;
+  }
+
+  async function loadCloudAdmin() {
+    if (cloudAdminState.loading) return;
+    cloudAdminState.loading = true;
+    try {
+      await requestJSON('/api/admin/session');
+      cloudAdminState.authenticated = true;
+      const data = await requestJSON('/api/admin/reports');
+      cloudAdminState.reports = Array.isArray(data.reports) ? data.reports : [];
+      cloudAdminState.error = '';
+    } catch (error) {
+      cloudAdminState.authenticated = false;
+      cloudAdminState.reports = [];
+      cloudAdminState.error = error.status === 401 ? '' : error.message;
+    } finally {
+      cloudAdminState.loading = false;
+      cloudAdminState.initialized = true;
+      if (getRoute().path === '/admin') render();
+    }
+  }
+
+  async function handleCloudAdminLogin(form) {
+    const submit = form.querySelector('button[type="submit"]');
+    const data = new FormData(form);
+    submit.disabled = true;
+    submit.textContent = '正在登录…';
+    try {
+      await requestJSON('/api/admin/login', { method: 'POST', body: JSON.stringify({ username: String(data.get('username') || '').trim(), password: String(data.get('password') || '') }) });
+      cloudAdminState.authenticated = true;
+      cloudAdminState.error = '';
+      const result = await requestJSON('/api/admin/reports');
+      cloudAdminState.reports = Array.isArray(result.reports) ? result.reports : [];
+      render();
+    } catch (error) {
+      cloudAdminState.error = error.message;
+      cloudAdminState.authenticated = false;
+      render();
+    }
+  }
+
+  async function openCloudReport(reportId) {
+    try {
+      const data = await requestJSON(`/api/admin/report?id=${encodeURIComponent(reportId)}`);
+      if (!data.report) throw new Error('报告资料不完整');
+      const reports = load(KEYS.reports, []).filter(item => item.id !== data.report.id);
+      reports.push(data.report);
+      save(KEYS.reports, reports);
+      if (data.lead) { const leads = load(KEYS.leads, []).filter(item => item.id !== data.lead.id); leads.push(data.lead); save(KEYS.leads, leads); }
+      go(`/report?id=${encodeURIComponent(data.report.id)}`);
+    } catch (error) { toast(error.message); }
+  }
+
+  async function deleteCloudReport(reportId, reportNo) {
+    if (!confirm(`确定删除报告 ${reportNo}？删除后无法恢复。`)) return;
+    try {
+      await requestJSON(`/api/admin/report?id=${encodeURIComponent(reportId)}`, { method: 'DELETE' });
+      cloudAdminState.reports = cloudAdminState.reports.filter(item => item.id !== reportId);
+      toast('云端报告已删除');
+      render();
+    } catch (error) { toast(error.message); }
+  }
+
+  async function logoutCloudAdmin() {
+    try { await requestJSON('/api/admin/logout', { method: 'POST' }); } catch (_) {}
+    cloudAdminState.initialized = true;
+    cloudAdminState.authenticated = false;
+    cloudAdminState.reports = [];
+    cloudAdminState.error = '';
+    render();
+  }
+
   function adminView(tab = 'gates') {
     const settings = getSettings();
     const leads = load(KEYS.leads, []), orders = load(KEYS.orders, []), reports = load(KEYS.reports, []), jobs = load(KEYS.jobs, []), classics = load(KEYS.classics, []), events = load(KEYS.events, []);
@@ -1731,7 +1919,7 @@
     const width = 1080, padding = 90, lineHeight = 50;
     const measure = document.createElement('canvas').getContext('2d');
     measure.font = '30px KaiTi, STKaiti, "Kaiti SC", serif';
-    const wrapped = group.lines.flatMap(line => line === '' ? [''] : wrapText(measure, traditionalize(line), width - padding * 2));
+    const wrapped = group.lines.flatMap(line => line === '' ? [''] : wrapText(measure, simplifyChinese(line), width - padding * 2));
     const height = Math.max(1450, 370 + wrapped.length * lineHeight + 240);
     canvas.width = width; canvas.height = height;
     const ctx = canvas.getContext('2d');
@@ -1740,12 +1928,12 @@
     ctx.strokeStyle = 'rgba(76,62,38,.26)'; ctx.lineWidth = 1; ctx.strokeRect(50, 50, width - 100, height - 100);
     ctx.fillStyle = '#9f3429'; ctx.fillRect(padding, 88, 74, 74);
     ctx.fillStyle = '#fff8e8'; ctx.font = 'bold 42px KaiTi, STKaiti, "Kaiti SC", serif'; ctx.textAlign = 'center'; ctx.fillText('历', padding + 37, 139);
-    ctx.textAlign = 'left'; ctx.fillStyle = '#26231d'; ctx.font = 'bold 48px KaiTi, STKaiti, "Kaiti SC", serif'; ctx.fillText(traditionalize(group.title), padding + 100, 140);
+    ctx.textAlign = 'left'; ctx.fillStyle = '#26231d'; ctx.font = 'bold 48px KaiTi, STKaiti, "Kaiti SC", serif'; ctx.fillText(simplifyChinese(group.title), padding + 100, 140);
     ctx.fillStyle = '#766b59'; ctx.font = '24px KaiTi, STKaiti, "Kaiti SC", serif'; ctx.fillText(`${report.reportNo}　·　第 ${pageNumber}/${totalPages} 页`, padding, 205);
     let y = 285; ctx.fillStyle = '#373229'; ctx.font = '30px KaiTi, STKaiti, "Kaiti SC", serif';
     wrapped.forEach(line => { if (!line) { y += 22; return; } if (line.startsWith('【')) { ctx.fillStyle = '#9f3429'; ctx.font = 'bold 34px KaiTi, STKaiti, "Kaiti SC", serif'; y += 15; } else { ctx.fillStyle = '#373229'; ctx.font = '30px KaiTi, STKaiti, "Kaiti SC", serif'; } ctx.fillText(line, padding, y); y += lineHeight; });
-    ctx.fillStyle = '#6e6557'; ctx.font = '23px KaiTi, STKaiti, "Kaiti SC", serif'; ctx.fillText(traditionalize('AI 生成内容 · 传统历法文化研习 · 非医疗、投资或人生重大决定建议'), padding, height - 115);
-    ctx.fillText(traditionalize(`${report.modelName} · ${report.modelFiling}`), padding, height - 76);
+    ctx.fillStyle = '#6e6557'; ctx.font = '23px KaiTi, STKaiti, "Kaiti SC", serif'; ctx.fillText(simplifyChinese('AI 生成内容 · 传统历法文化研习'), padding, height - 115);
+    ctx.fillText(simplifyChinese(`报告编号 ${report.reportNo} · 保存期限 ${formatDate(report.expiresAt, false)}`), padding, height - 76);
     const link = document.createElement('a');
     link.download = `${report.reportNo}-${pageNumber}.png`;
     link.href = canvas.toDataURL('image/png');
@@ -1764,19 +1952,24 @@
   function render() {
     purgeExpiredData();
     renderBanner();
+    const ownerNav = $('#owner-nav');
+    if (ownerNav) ownerNav.hidden = !isOwnerDevice();
     const route = getRoute();
     let html;
     if (route.path === '/home' || route.path === '/') html = homeView();
     else if (route.path === '/start') html = startView();
+    else if (route.path === '/feedback') html = feedbackView();
     else if (route.path === '/handoff') html = handoffView(route.query.get('token'));
     else if (route.path === '/preview') html = previewView(route.query.get('token'));
     else if (route.path === '/generating') html = generationView(route.query.get('job'));
     else if (route.path === '/report') html = reportView(route.query.get('id'));
-    else if (route.path === '/admin') html = adminView(route.query.get('tab') || 'gates');
+    else if (route.path === '/owner') html = isOwnerDevice() ? ownerView() : errorView('此後台只允許在擁有者電腦上開啟。', '#/home', '返回首頁');
+    else if (route.path === '/admin') html = cloudAdminView();
     else html = errorView('页面不存在。', '#/home', '返回首页');
     app.innerHTML = html;
     bindForms();
     loadFeedbackWall();
+    if (route.path === '/admin' && !cloudAdminState.initialized && !cloudAdminState.loading) queueMicrotask(loadCloudAdmin);
     focusPage();
     track('page_view', { path: route.path });
   }
@@ -1797,6 +1990,12 @@
     });
     const feedbackForm = $('#feedback-form');
     if (feedbackForm) feedbackForm.addEventListener('submit', event => { event.preventDefault(); submitFeedback(feedbackForm); });
+    const cloudAdminLoginForm = $('#cloud-admin-login-form');
+    if (cloudAdminLoginForm) cloudAdminLoginForm.addEventListener('submit', event => { event.preventDefault(); handleCloudAdminLogin(cloudAdminLoginForm); });
+    const adminReportSearchForm = $('#admin-report-search-form');
+    if (adminReportSearchForm) adminReportSearchForm.addEventListener('submit', event => {
+      event.preventDefault(); cloudAdminState.query = String(new FormData(adminReportSearchForm).get('query') || ''); render();
+    });
   }
 
   document.addEventListener('click', event => {
@@ -1820,6 +2019,10 @@
     else if (action === 'scroll-report') document.getElementById(target.dataset.target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     else if (action === 'save-report-images') saveReportImages(target.dataset.reportId);
     else if (action === 'delete-report') deleteReport(target.dataset.reportId);
+    else if (action === 'export-owner-data') exportOwnerData();
+    else if (action === 'cloud-admin-logout') logoutCloudAdmin();
+    else if (action === 'cloud-report-open') openCloudReport(target.dataset.id);
+    else if (action === 'cloud-report-delete') deleteCloudReport(target.dataset.id, target.dataset.reportNo);
     else if (action === 'admin-tab') go(`/admin?tab=${target.dataset.tab}`);
     else if (action === 'delete-classic') { save(KEYS.classics, load(KEYS.classics, []).filter(item => item.id !== target.dataset.id)); toast('条目已删除'); render(); }
     else if (action === 'run-purge') { purgeExpiredData(); toast('到期资料清理完成'); render(); }
@@ -1868,13 +2071,14 @@
 
   window.addEventListener('hashchange', render);
   modal.addEventListener('click', event => { if (event.target === modal) modal.close(); });
-  const traditionalObserver = new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(node => {
+  const simplifiedObserver = new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(node => {
     if (node.nodeType === Node.TEXT_NODE) {
-      const next = traditionalize(node.nodeValue); if (next !== node.nodeValue) node.nodeValue = next;
-    } else if (node.nodeType === Node.ELEMENT_NODE) localizeTraditional(node);
+      const next = simplifyChinese(node.nodeValue); if (next !== node.nodeValue) node.nodeValue = next;
+    } else if (node.nodeType === Node.ELEMENT_NODE) localizeSimplified(node);
   })));
-  traditionalObserver.observe(document.body, { childList: true, subtree: true });
-  localizeTraditional(document.body);
+  simplifiedObserver.observe(document.body, { childList: true, subtree: true });
+  localizeSimplified(document.body);
   purgeExpiredData();
   render();
 })();
+
