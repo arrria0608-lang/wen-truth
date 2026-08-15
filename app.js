@@ -123,11 +123,30 @@
     华盖: { meaning: '用于辅助观察独立思考、审美、技艺、研究与精神兴趣；不应直接解释为孤独或宗教命。', rule: '以日支所属三合局查库位：申子辰见辰，寅午戌见戌，巳酉丑见丑，亥卯未见未。', source: '《三命通会》卷二〈论将星华盖〉' },
     空亡: { meaning: '旬空是六十甲子每旬中未能与十天干配对的两个地支，用于观察某柱之象是否出现落空、延后或形式化；不能单独断凶。', rule: '按该柱所属甲子旬计算两个旬空地支；仍须检查填实、合冲及岁运引动。', source: '《渊海子平》〈论空亡〉；《三命通会》相关空亡论述' }
   };
+  const TEN_GOD_INFO = {
+    日主: { relation: '出生日的天干，是整张命盘定位十神的基准。', meaning: '代表命主自身的基本反应方式与主观立场；其余十神都必须相对于日主来计算。', example: '例如日主为癸水，癸所克的火才是此命的财星，不能直接把固定五行当成所有人的财富。' },
+    比肩: { relation: '与日主同五行、同阴阳。', meaning: '常用于观察自主、同辈、并肩执行与自我主张；出现不等于一定固执或破财。', example: '例如工作中倾向亲自掌握关键步骤，合作时需要先说清各自决定权。' },
+    劫财: { relation: '与日主同五行、异阴阳。', meaning: '常用于观察竞争、合作、朋友资源与快速调度；须结合全局判断它是助力还是分夺。', example: '例如适合多人协作开发客户，但合伙前要先写清成本、分工与分成。' },
+    食神: { relation: '由日主所生、同阴阳。', meaning: '常用于观察稳定输出、作品、服务、生活感与较温和的表达方式。', example: '例如把专业做成课程、内容或长期服务，靠口碑慢慢累积成果。' },
+    伤官: { relation: '由日主所生、异阴阳。', meaning: '常用于观察表达、质疑、创新与突破旧方法；不能只凭伤官就判断叛逆或婚姻。', example: '例如看到流程不合理时，会先指出问题，再提出更有效率的做法。' },
+    偏财: { relation: '被日主所克、同阴阳。', meaning: '常用于观察市场机会、客户、流动资源与项目型收入；并不等同投机或横财。', example: '例如通过客户开发、渠道合作或阶段性项目增加收入。' },
+    正财: { relation: '被日主所克、异阴阳。', meaning: '常用于观察稳定经营、责任兑现、预算与可持续现金流；并不保证收入高低。', example: '例如以固定职能、长期合同、运营管理或规律储蓄累积财富。' },
+    七杀: { relation: '克日主、同阴阳。', meaning: '常用于观察压力、目标、决断与外部竞争；是否化为执行力，要看印星、食伤和日主承载。', example: '例如面对期限紧、责任重的任务时反而容易集中，但要避免长期透支。' },
+    正官: { relation: '克日主、异阴阳。', meaning: '常用于观察规则、责任、职位、信誉与制度评价；不能单凭正官判断一定当官。', example: '例如在职责清楚、晋升标准明确的组织里，更容易建立稳定信用。' },
+    偏印: { relation: '生日主、同阴阳。', meaning: '常用于观察独立研究、特殊知识、非标准学习与直觉判断；仍须分辨是否真正有根有用。', example: '例如遇到陌生问题时，倾向先自己查资料、建立一套独特解法。' },
+    正印: { relation: '生日主、异阴阳。', meaning: '常用于观察学习、专业支持、资格、照顾与安全感；不能直接等同学历或贵人。', example: '例如通过系统学习、证照、导师或成熟流程降低试错成本。' }
+  };
   const PILLAR_MEANINGS = [
     { name: '年柱', short: '祖辈 · 早年', detail: '主要观察祖辈根基、出生家庭的外部背景、童年早期环境，以及命主对外展现的第一层社会印象。', note: '年柱不能单独决定家庭条件，仍须与月柱、十神及全局生克合看。' },
     { name: '月柱', short: '父母 · 成长', detail: '月令是子平法判断旺衰与格局的重要提纲；月柱同时用于观察父母、手足、成长环境，以及进入社会后的制度与工作场域。', note: '月柱权重高，但不是只看月令就能完成全部判断。' },
     { name: '日柱', short: '自身 · 夫妻', detail: '日干代表命主自身，是十神定位的基准；日支为夫妻宫，用于观察亲密关系、共同生活与内在安全感。', note: '夫妻宫的合冲只表示关系议题被触发，不能直接断定结婚或离婚。' },
     { name: '时柱', short: '子女 · 晚景', detail: '主要观察子女、晚年生活、长期计划、事业最终落点，以及命主希望留下的成果与延续。', note: '时柱也受大运流年引动，不能单凭一柱推断子女或晚年吉凶。' }
+  ];
+  const WEALTH_PILLAR_CONTEXT = [
+    { palace: '祖辈宫', phase: '少年（1—18岁）', source: '祖辈根基、早年家庭资源与外部起点' },
+    { palace: '父母／兄弟／事业宫', phase: '青年（18—36岁）', source: '成长家庭、手足协作、工作平台与职业经营' },
+    { palace: '夫妻宫', phase: '中年（36—48岁）', source: '自身经营、伴侣协作与共同生活中的资产安排' },
+    { palace: '子女／晚景宫', phase: '晚年（48岁以后）', source: '长期成果、后辈关系、晚年规划与延续性收入' }
   ];
   const HIDDEN_STEMS = {
     子: ['癸'], 丑: ['己', '癸', '辛'], 寅: ['甲', '丙', '戊'], 卯: ['乙'],
@@ -765,7 +784,11 @@
           <div class="detail-label detail-corner" role="columnheader">四柱</div>
           ${labels.map(label => `<div class="detail-cell detail-heading" role="columnheader">${label}</div>`).join('')}
           ${row('宫位', (_, index) => interactiveInfoButton(PILLAR_MEANINGS[index].short, 'show-pillar-meaning', { 'pillar-index': String(index) }))}
-          ${row('十神', (pillar, index) => index === 2 ? (masterLabel === '日主' ? '日主' : `${masterLabel}／日主`) : tenGodName(dayStemIndex, pillar.stemIndex))}
+          ${row('十神', (pillar, index) => {
+            const name = index === 2 ? '日主' : tenGodName(dayStemIndex, pillar.stemIndex);
+            const label = index === 2 && masterLabel !== '日主' ? `${masterLabel}／日主` : name;
+            return interactiveInfoButton(label, 'show-ten-god', { tengod: name, position: labels[index], 'day-stem': STEMS[dayStemIndex], 'target-stem': STEMS[pillar.stemIndex] });
+          })}
           ${row('天干', pillar => `<b class="chart-symbol ${elementClassForStem(pillar.stemIndex)}">${STEMS[pillar.stemIndex]}</b>`, 'symbol-cell')}
           ${row('地支', pillar => `<b class="chart-symbol ${elementClassForBranch(pillar.branchIndex)}">${BRANCHES[pillar.branchIndex]}</b>`, 'symbol-cell')}
           ${row('藏干', pillar => `<span class="stacked-values">${(HIDDEN_STEMS[BRANCHES[pillar.branchIndex]] || []).map(stem => { const stemIndex = STEMS.indexOf(stem); return `<i class="${elementClassForStem(stemIndex)}">${stem}</i>`; }).join('')}</span>`)}
@@ -927,6 +950,82 @@
     return result;
   }
 
+  function wealthProfile(chart) {
+    const dayStemIndex = chart.pillars[2].stemIndex;
+    const pillarNames = ['年柱', '月柱', '日柱', '时柱'];
+    const hiddenLevels = ['本气', '中气', '余气'];
+    const occurrences = [];
+
+    chart.pillars.forEach((pillar, pillarIndex) => {
+      const context = WEALTH_PILLAR_CONTEXT[pillarIndex];
+      const visibleStem = STEMS[pillar.stemIndex];
+      const visibleGod = tenGodName(dayStemIndex, pillar.stemIndex);
+      if (['正财', '偏财'].includes(visibleGod)) {
+        occurrences.push({
+          pillarIndex,
+          pillar: pillarNames[pillarIndex],
+          branch: BRANCHES[pillar.branchIndex],
+          stem: visibleStem,
+          god: visibleGod,
+          layer: '天干透出',
+          hiddenLevel: '',
+          ...context
+        });
+      }
+
+      (HIDDEN_STEMS[BRANCHES[pillar.branchIndex]] || []).forEach((stem, hiddenIndex) => {
+        const god = tenGodName(dayStemIndex, STEMS.indexOf(stem));
+        if (!['正财', '偏财'].includes(god)) return;
+        occurrences.push({
+          pillarIndex,
+          pillar: pillarNames[pillarIndex],
+          branch: BRANCHES[pillar.branchIndex],
+          stem,
+          god,
+          layer: `地支藏干·${hiddenLevels[hiddenIndex] || '余气'}`,
+          hiddenLevel: hiddenLevels[hiddenIndex] || '余气',
+          ...context
+        });
+      });
+    });
+
+    const types = [...new Set(occurrences.map(item => item.god))];
+    const visibleCount = occurrences.filter(item => item.layer === '天干透出').length;
+    const hiddenCount = occurrences.length - visibleCount;
+    const pillarIndexes = [...new Set(occurrences.map(item => item.pillarIndex))];
+    const purity = !occurrences.length ? '原局财星不显' : types.length === 1 ? `财星清纯（${types[0]}）` : '正偏财并见';
+    const visibility = !occurrences.length
+      ? '原局天干与地支藏干均未见财星'
+      : visibleCount && hiddenCount
+        ? `财星既有透干，也有藏支（透${visibleCount}、藏${hiddenCount}）`
+        : visibleCount
+          ? `财星见于天干，共${visibleCount}处`
+          : `财星藏于地支，共${hiddenCount}处`;
+    const sourceSummary = pillarIndexes.length
+      ? pillarIndexes.map(index => `${pillarNames[index]}·${WEALTH_PILLAR_CONTEXT[index].palace}`).join('、')
+      : '原局无财星落位可归属';
+    const phaseSummary = pillarIndexes.length
+      ? pillarIndexes.map(index => WEALTH_PILLAR_CONTEXT[index].phase).join('、')
+      : '须结合食伤、事业结构与岁运观察';
+
+    return {
+      occurrences,
+      types,
+      visibleCount,
+      hiddenCount,
+      pillarIndexes,
+      purity,
+      visibility,
+      sourceSummary,
+      phaseSummary,
+      byPillar: pillarNames.map((pillar, pillarIndex) => ({
+        pillar,
+        ...WEALTH_PILLAR_CONTEXT[pillarIndex],
+        occurrences: occurrences.filter(item => item.pillarIndex === pillarIndex)
+      }))
+    };
+  }
+
   function structureProfile(chart) {
     const dayStemIndex = chart.pillars[2].stemIndex;
     const tenGodCounts = Object.fromEntries(['比肩', '劫财', '食神', '伤官', '偏财', '正财', '七杀', '正官', '偏印', '正印'].map(name => [name, 0]));
@@ -951,7 +1050,7 @@
     const dayElementIndex = ELEMENTS.indexOf(chart.dayMasterElement);
     const resourceElement = ELEMENTS[(dayElementIndex + 4) % 5];
     const surfaceSupportPercent = Math.min(100, chart.elements[chart.dayMasterElement].percent + chart.elements[resourceElement].percent);
-    return { tenGodCounts, positions, conventionalPercent, variablePercent: 100 - conventionalPercent, resourceElement, surfaceSupportPercent };
+    return { tenGodCounts, positions, wealth: wealthProfile(chart), conventionalPercent, variablePercent: 100 - conventionalPercent, resourceElement, surfaceSupportPercent };
   }
 
   function branchRelations(chart) {
@@ -1007,6 +1106,16 @@
       偏财: '适合市场、商务、跨界合作与机会驱动的环境', 正财: '适合运营、财务、项目管理和稳定经营型工作', 七杀: '适合目标清楚、责任重大、需要快速决断的岗位', 正官: '适合制度成熟、晋升规则明确并重视信誉的组织',
       偏印: '适合研究、顾问、技术及需要独立判断的领域', 正印: '适合教育、资质、专业支持与知识密集型工作'
     };
+    const godAdvice = {
+      比肩: '给自己明确的决定空间，同时把合作边界提前说清楚。', 劫财: '合作可以加速，但分工、预算和分成必须先写下来。', 食神: '把擅长的事做成稳定流程，以持续交付代替短期爆发。', 伤官: '提出不同意见时，同时给出数据、替代方案和完成期限。',
+      偏财: '先验证客户需求与回款周期，再扩大项目或渠道。', 正财: '先守住稳定现金流，再安排第二收入与长期积累。', 七杀: '把压力拆成可执行目标，并为体力和情绪设置恢复时间。', 正官: '选择规则清楚的环境，用长期信誉换取更大责任。',
+      偏印: '保留独立研究优势，但要用实际成果验证判断。', 正印: '善用课程、证照和导师，同时避免一直准备而迟迟不行动。'
+    };
+    const godExample = {
+      比肩: '例如接到合作案时，你可以负责核心判断，让伙伴负责执行或渠道，并先约定最终决定权。', 劫财: '例如朋友邀你合伙，不要只谈愿景；先把出资、工时、客户归属和退出方式写进协议。', 食神: '例如把一次性服务整理成标准方案、固定报价和交付清单，让口碑可以重复累积。', 伤官: '例如发现公司流程低效时，不只批评，也准备一份试行两周的新流程和衡量指标。',
+      偏财: '例如先用小预算测试一个渠道的客户成本和回款，再决定是否扩大，而不是一次投入全部资金。', 正财: '例如先确保本业收入能覆盖固定支出，再用固定比例发展副业，而不是让两边现金流混在一起。', 七杀: '例如面对紧急项目时先排优先级和授权，完成后安排恢复，不把长期过劳当成能力证明。', 正官: '例如转职时优先比较职责、评价标准和晋升路径，而不只看职位名称。',
+      偏印: '例如研究新领域时先做一个小型作品或测试案，用真实反馈修正自己的判断。', 正印: '例如进修前先确认目标职位真正需要的证照，再选择课程，避免只累积学习记录。'
+    };
     const elementMode = {
       木: '容易先看成长空间与长期路线', 火: '容易先行动、表达并争取可见成果', 土: '容易先确认稳定性、责任与可持续性', 金: '容易先定标准、辨边界并处理取舍', 水: '容易先收集信息、观察局势并保留弹性'
     };
@@ -1022,13 +1131,13 @@
     const secondaryGod = dominantNames[1];
     const godPhrase = dominantNames.map(name => `${name}偏显`).join('、');
     const items = [
-      { title: '性格底色', body: dayTraits[chart.dayMaster] || `${chart.dayMasterElement}日主重视自身节奏与现实反馈。`, evidence: `日主 ${chart.dayMaster}${chart.dayMasterElement}，月令 ${BRANCHES[chart.pillars[1].branchIndex]}` },
-      { title: '行事与决策', body: `命局以${godPhrase || '十神分布平均'}为主要倾向，处理问题时更常${godAction[primaryGod]}${secondaryGod ? `，同时也会${godAction[secondaryGod]}` : ''}。`, evidence: dominantGods.map(([name, count]) => `${name}权重 ${count}`).join('；') || '十神权重未形成集中项' },
-      { title: '人际与关系', body: relationshipText, evidence: relations.length ? relations.map(item => `${item.members}${item.type}`).join('；') : '原局未触发已收录的六合、六冲与三合规则' },
-      { title: '事业表达', body: `${godWork[primaryGod]}。在职责、授权与评价标准含糊的环境里，表现容易受牵制；把成果定义和决策权限写清楚会更有利。`, evidence: `主要十神 ${primaryGod}${secondaryGod ? `、${secondaryGod}` : ''}` },
-      { title: '优势与盲点', body: `表层${strongest}较多，${elementMode[strongest]}；${weakest}相对较少时，可刻意${elementAdjustment[weakest]}。这是一项结构修正建议，不等同于喜用神结论。`, evidence: `表层五行：${strongest}较多、${weakest}较少` }
+      { title: '性格底色', body: dayTraits[chart.dayMaster] || `${chart.dayMasterElement}日主重视自身节奏与现实反馈。`, advice: `发挥敏锐的一面，同时刻意${elementAdjustment[weakest]}。`, example: '例如遇到重要选择时，先写下“最在意什么、不能接受什么、下一步如何验证”，会比反复在心里比较更有效。', evidence: `日主 ${chart.dayMaster}${chart.dayMasterElement}，月令 ${BRANCHES[chart.pillars[1].branchIndex]}` },
+      { title: '行事与决策', body: `你处理问题时较常${godAction[primaryGod]}${secondaryGod ? `，同时也会${godAction[secondaryGod]}` : ''}。简单说，你不是没有行动力，而是需要看见资源、目标或判断依据后，才会真正投入。`, advice: godAdvice[primaryGod], example: godExample[primaryGod], evidence: dominantGods.map(([name, count]) => `${name}权重 ${count}`).join('；') || '十神权重未形成集中项' },
+      { title: '人际与关系', body: relationshipText, advice: '把期待、时间安排和金钱边界说具体；不要用“对方应该懂”代替沟通。', example: relations.length ? '例如共同旅行或处理家庭支出前，先确认预算、分工和各自需要的独处时间，可减少事后误会。' : '例如关系没有明显冲突时，也可以每月固定一次谈生活安排，而不是等问题累积后才处理。', evidence: relations.length ? relations.map(item => `${item.members}${item.type}`).join('；') : '原局未触发已收录的六合、六冲与三合规则' },
+      { title: '事业表达', body: `${godWork[primaryGod]}。比起只有职位名称，你更需要职责、授权和评价标准说得清楚，才容易稳定发挥。`, advice: godAdvice[primaryGod], example: godExample[primaryGod], evidence: `主要十神 ${primaryGod}${secondaryGod ? `、${secondaryGod}` : ''}` },
+      { title: '优势与盲点', body: `你的优势是${elementMode[strongest]}；较容易忽略的是${weakest}所代表的步骤。这里说的是结构倾向，不是给你贴上“好或坏”的标签。`, advice: `重要决定前，刻意${elementAdjustment[weakest]}。`, example: '例如准备换工作时，除了判断机会好不好，也同时列出收入底线、职责边界、学习成本和三个月验证目标。', evidence: `表层五行：${strongest}较多、${weakest}较少` }
     ];
-    if (forecast) items.push({ title: '未来十年主轴', body: forecast.keyYears.length ? `未来十年变化较集中的节点为 ${forecast.keyYears.join('、')}。这些年份宜提前配置时间、关系与现金流缓冲，再分别核对婚姻、事业和财富的触发依据。` : '未来十年没有形成单项特别集中的节点，主轴是稳定积累；重大决定仍应结合当年现实条件逐项验证。', evidence: forecast.method });
+    if (forecast) items.push({ title: '未来十年主轴', body: forecast.keyYears.length ? `未来十年变化较集中的节点为 ${forecast.keyYears.join('、')}。这些年份不是保证发生某件事，而是婚姻、事业或财富议题较值得主动检查的时间。` : '未来十年没有形成单项特别集中的节点，主轴是稳定积累；重大决定仍应结合当年现实条件逐项验证。', advice: '关键年前六个月先整理时间、关系与现金流缓冲，再根据现实机会决定是否行动。', example: forecast.keyYears.length ? `例如 ${forecast.keyYears[0]} 年若同时出现转职或合作机会，可先做小规模试行、确认回款与生活影响，再决定是否全面投入。` : '例如每年固定复盘工作成果、关系安排和现金流，不需要为了追求“关键年份”而制造变化。', evidence: forecast.method });
     return items;
   }
 
@@ -1043,23 +1152,30 @@
     const wealthYears = topYears('wealth');
     const marriageYears = topYears('marriage');
     const careerYears = topYears('career');
-    const wealthLocations = profile.positions.wealth;
+    const wealthDetails = profile.wealth;
+    const wealthLocations = wealthDetails.occurrences;
     const careerLocations = profile.positions.career;
-    const directWealthCount = profile.tenGodCounts['正财'] || 0;
-    const indirectWealthCount = profile.tenGodCounts['偏财'] || 0;
-    const wealthType = directWealthCount > indirectWealthCount ? '正財為主' : indirectWealthCount > directWealthCount ? '偏財為主' : directWealthCount ? '正財、偏財並見' : '原局表層財星不顯';
+    const directWealthCount = wealthLocations.filter(item => item.god === '正财').length;
+    const indirectWealthCount = wealthLocations.filter(item => item.god === '偏财').length;
+    const wealthType = wealthDetails.purity;
     const earningRouteMap = {
       比肩: '靠個人專業、主導權與成果分成累積收入', 劫财: '靠合作開發、競爭能力與資源整合創造收入', 食神: '靠作品、服務品質、內容或長期口碑變現', 伤官: '靠企劃、表達、創新與解決複雜問題變現',
       偏财: '靠市場機會、客戶開發、通路與外部資源變現', 正财: '靠固定職能、流程管理、財務紀律與穩定交付累積', 七杀: '靠承擔高責任目標、績效與急難任務取得報酬', 正官: '靠職位、資格、制度信用與管理責任提升收入',
       偏印: '靠研究、技術、特殊知識與顧問判斷變現', 正印: '靠學歷資格、教學、照護或專業支持建立穩定收入'
     };
-    const earningRoute = earningRouteMap[primaryGod] || '靠可重複驗證的專業成果與長期信用累積收入';
+    const earningRoute = directWealthCount && !indirectWealthCount
+      ? earningRouteMap.正财
+      : indirectWealthCount && !directWealthCount
+        ? earningRouteMap.偏财
+        : directWealthCount && indirectWealthCount
+          ? '以稳定本业作为现金流基础，再通过客户、项目或外部合作扩展收入'
+          : (earningRouteMap[primaryGod] || '靠可重复验证的专业成果与长期信用累积收入');
     const familyRelations = relations.filter(item => item.positions.includes('年柱') || item.positions.includes('月柱'));
     const wealthPattern = wealthLocations.length === 0
-      ? '原局表层财星不显，财富更依赖专业能力、稳定产出与长期现金流管理，不适合把单一机会当成全部重心。'
-      : wealthLocations.length <= 2
-        ? '财星落点较集中，财运更适合深耕熟悉领域、建立重复成交或稳定收入，再逐步扩大规模。'
-        : '财星分布较多，收入来源具备多元发展的空间，但合作分配、成本与现金流边界必须先写清楚。';
+      ? '原局天干与藏干均未见财星，不能据此断定无财；财富判断应转看食伤生财、事业承载与岁运引动，现实上以专业能力和现金流纪律为先。'
+      : wealthDetails.types.length === 1
+        ? `${wealthDetails.purity}，共见${wealthLocations.length}处，落于${wealthDetails.sourceSummary}。财源倾向较集中，适合围绕同一套能力或经营模式持续累积。`
+        : `正财、偏财同时出现，共见${wealthLocations.length}处，落于${wealthDetails.sourceSummary}。收入结构可兼顾稳定本业与项目机会，但两类资金的成本、分配与风险要分开管理。`;
     const dayRelation = relations.filter(item => item.positions.includes('日柱'));
     const marriagePattern = dayRelation.some(item => item.type === '六冲')
       ? '夫妻宫参与六冲，感情中的节奏、距离与个人空间是长期课题；重要决定不宜在冲突最高点立即定案。'
@@ -1092,9 +1208,18 @@
     return [
       {
         title: '财运小结', summary: wealthPattern,
-        highlights: [{ label: '財星類型', text: wealthType }, { label: '主要賺法', text: earningRoute }, { label: '收入重點', text: directWealthCount >= indirectWealthCount && directWealthCount ? '先穩定本業現金流，再發展第二收入' : indirectWealthCount ? '以客戶、通路或專案機會擴張，但先寫清成本與分配' : '先把專業能力做成可定價、可重複交付的成果' }],
-        advice: `较值得留意的财运年份：${wealthYears.join('、')}。先建立六個月內可追蹤的收入、固定支出與專案毛利表；有利年份仍須保留風險緩衝。`,
-        evidence: `${wealthType}；正財權重 ${directWealthCount}、偏財權重 ${indirectWealthCount}${wealthLocations.length ? `；${wealthLocations.join('；')}` : ''}`
+        highlights: [
+          { label: '财星格局', text: wealthType },
+          { label: '财富所属', text: wealthDetails.sourceSummary },
+          { label: '显藏状态', text: wealthDetails.visibility },
+          { label: '对应阶段', text: wealthDetails.phaseSummary },
+          { label: '主要赚法', text: earningRoute },
+          { label: '收入重点', text: directWealthCount && !indirectWealthCount ? '先稳定本业现金流，再发展可持续的第二收入' : indirectWealthCount && !directWealthCount ? '以客户、通路或项目机会扩张，但先写清成本与分配' : directWealthCount && indirectWealthCount ? '稳定收入与机会收入分账管理，避免现金流互相挤占' : '先把专业能力做成可定价、可重复交付的成果' }
+        ],
+        advice: `较值得留意的财运年份：${wealthYears.join('、')}。这些年份仍须结合大运、流年财星与原局落位复核；先建立六个月内可追踪的收入、固定支出与项目毛利表。`,
+        evidence: wealthLocations.length
+          ? wealthLocations.map(item => `${item.pillar}${item.branch}${item.layer}${item.stem}（${item.god}，${item.palace}）`).join('；')
+          : '原局天干与藏干未检出正财或偏财'
       },
       {
         title: '婚姻感情', summary: marriagePattern,
@@ -1210,18 +1335,40 @@
 
   function structureAnalysisHTML(chart) {
     const profile = structureProfile(chart);
+    const wealthDetails = profile.wealth;
     const relations = branchRelations(chart);
     const sortedElements = Object.entries(chart.elements).sort((a, b) => b[1].count - a[1].count);
     const strongest = sortedElements[0][0];
     const weakest = sortedElements.at(-1)[0];
     const wealthElement = ELEMENTS[(ELEMENTS.indexOf(chart.dayMasterElement) + 2) % 5];
     const careerElement = ELEMENTS[(ELEMENTS.indexOf(chart.dayMasterElement) + 3) % 5];
-    const wealthLocations = profile.positions.wealth;
+    const wealthLocations = wealthDetails.occurrences;
     const careerLocations = profile.positions.career;
-    const diversity = wealthLocations.length === 0 ? '原局表层未见财星' : wealthLocations.length <= 2 ? '财星落点集中' : '财星分布多点';
+    const diversity = wealthDetails.purity;
     const tendency = profile.conventionalPercent >= 60 ? '常规结构较多' : profile.variablePercent >= 60 ? '变动结构较多' : '两类结构接近';
     const relationCards = relations.length ? relations.map(item => `<div class="relation-card"><b>${item.members}</b><span>${item.type}</span><small>${item.positions}</small></div>`).join('') : '<div class="empty-state compact">四支之间未触发本版已收录的六合、六冲或三合规则。</div>';
     const locationList = (items, empty) => items.length ? `<ul class="evidence-list compact-list">${items.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>` : `<p>${empty}</p>`;
+    const wealthPalaceCards = wealthDetails.byPillar.map(item => {
+      const findings = item.occurrences.length
+        ? item.occurrences.map(occurrence => `<span><b>${occurrence.god}</b><small>${occurrence.layer}${occurrence.stem}</small></span>`).join('')
+        : '<span class="wealth-empty"><b>未见财星</b><small>本柱天干与藏干未检出</small></span>';
+      return `<article class="wealth-palace-card${item.occurrences.length ? ' has-wealth' : ''}"><header><b>${item.pillar}</b><span>${item.palace}</span></header><div>${findings}</div><p>${item.phase}</p><small>${item.source}</small></article>`;
+    }).join('');
+    const wealthPlacementText = wealthDetails.occurrences.length
+      ? wealthDetails.occurrences.map(item => `${item.pillar}${item.branch}的${item.hiddenLevel || '天干'}见${item.stem}${item.god}`).join('，')
+      : '四柱天干与藏干均未见正财或偏财';
+    const wealthPurityText = !wealthDetails.occurrences.length
+      ? '原局财星不显，不能据此判断贫富，应继续看食伤、官杀、日主承载与岁运。'
+      : wealthDetails.types.length === 1
+        ? `${wealthDetails.purity}，财富组织方式较集中，宜围绕同一套能力或经营模式持续积累。`
+        : '正财、偏财并见，财富路径可同时包含稳定收入与项目机会，但两类资金宜分账管理。';
+    const wealthVisibilityText = wealthDetails.visibleCount && wealthDetails.hiddenCount
+      ? '财星既透干又藏支，既有较公开、直接的收入议题，也有依附资源、合作或阶段性条件的部分。'
+      : wealthDetails.visibleCount
+        ? '财星主要透于天干，财富议题在结构表达上较直接、较容易被外界看见。'
+        : wealthDetails.hiddenCount
+          ? '财星全藏于地支，财富议题在结构表达上较隐，通常需要依附具体岗位、关系或岁运条件才显现。'
+          : '没有财星显藏信息可作归属判断。';
     return `
       <section class="report-section analysis-section" id="structure-section">
         <div class="ornament-title">命局结构总览</div>
@@ -1240,9 +1387,16 @@
       </section>
       <section class="report-section analysis-section">
         <div class="ornament-title">财星落位与来源</div>
-        <div class="analysis-callout"><b>${diversity}</b><span>日主${chart.dayMasterElement}所克之${wealthElement}为财星；本版只检查原局天干与藏干。</span></div>
-        ${locationList(wealthLocations, `原局天干与藏干未检出${wealthElement}财星；这不代表现实中没有财富。`)}
-        <p class="method-note">“落位”只表示财星出现在哪一柱及显藏位置，不直接推导收入金额、投资回报或人生阶段。</p>
+        <div class="analysis-callout"><b>${diversity}</b><span>以日主${chart.dayMasterElement}所克之${wealthElement}为财星，逐项检查四柱天干与地支藏干，并区分透干、本气、中气和余气。</span></div>
+        <div class="wealth-palace-grid">${wealthPalaceCards}</div>
+        <div class="wealth-summary-strip"><span><small>财富所属</small><b>${wealthDetails.sourceSummary}</b></span><span><small>显藏状态</small><b>${wealthDetails.visibility}</b></span></div>
+        <div class="wealth-key-analysis">
+          <h3>财富重点分析</h3>
+          <p>本命以<mark>${wealthElement}为财星</mark>；${wealthPlacementText}。财星所落宫位对应<mark>${wealthDetails.sourceSummary}</mark>，重点阶段为${wealthDetails.phaseSummary}。</p>
+          <p><mark>${wealthDetails.purity}</mark>。${wealthPurityText}</p>
+          <p><mark>${wealthDetails.visibility}</mark>。${wealthVisibilityText}</p>
+        </div>
+        <p class="method-note">财星落柱用于观察财富议题较常依附的宫位与人生阶段；透干表示财星较显，藏支表示财星较隐。财星清纯指原局只见正财或只见偏财，正偏财并见则不作“清纯”论。以上仍不能单独推导收入金额或投资结果。</p>
       </section>
       <section class="report-section analysis-section">
         <div class="ornament-title">表层承载结构</div>
@@ -1620,7 +1774,7 @@
           </section>
           <section class="report-identity"><div><small>命造</small><b>${sexLabel}</b></div><div><small>公历出生</small><b>${escapeHTML(chart.civilTime)}</b></div><div><small>出生地点</small><b>${escapeHTML(birthPlace || '未记录')}</b></div><div><small>农历核对</small><b>${escapeHTML(birth.lunarInput || '未填写')}</b></div></section>
           <section class="report-section" id="overview-section"><h2>排盘核对</h2>${pillarHTML(chart)}<div class="time-proof"><span><small>民用时间</small><b>${escapeHTML(chart.civilTime)}</b></span><span><small>真太阳时</small><b>${escapeHTML(chart.trueSolarTime)}</b></span><span><small>时间校正</small><b>${chart.correctionMinutes >= 0 ? '+' : ''}${chart.correctionMinutes} 分钟</b></span></div>${chart.boundaryWarnings.map(item => `<p class="inline-warning">${escapeHTML(item)}</p>`).join('')}${detailChartHTML(chart)}</section>
-          <section class="report-section conclusion-section" id="conclusion-section"><h2>命局性格总论</h2><p class="section-intro">以下结论由日主、月令、十神权重、表层五行与原局合冲共同生成，重点说明性格、决策、人际和事业表达，不只是重复四柱资料。</p><div class="human-narrative">${narrativeItems.map(item => `<article><small>${escapeHTML(item.label)}</small><p>${escapeHTML(item.text)}</p></article>`).join('')}</div><div class="conclusion-grid">${conclusionItems.map(item => `<article class="conclusion-card"><small>${escapeHTML(item.title)}</small><p>${escapeHTML(item.body)}</p><span>依据：${escapeHTML(item.evidence)}</span></article>`).join('')}</div></section>
+          <section class="report-section conclusion-section" id="conclusion-section"><h2>命局性格总论</h2><p class="section-intro">以下结论由日主、月令、十神权重、表层五行与原局合冲共同生成。每项先给白话结论，再给实际建议和生活案例；底部保留命理依据供核对。</p><div class="human-narrative">${narrativeItems.map(item => `<article><small>${escapeHTML(item.label)}</small><p>${escapeHTML(item.text)}</p></article>`).join('')}</div><div class="conclusion-grid">${conclusionItems.map(item => `<article class="conclusion-card"><small>${escapeHTML(item.title)}</small><p>${escapeHTML(item.body)}</p><div class="plain-advice"><b>怎么做</b><p>${escapeHTML(item.advice)}</p></div><div class="plain-example"><b>举个例子</b><p>${escapeHTML(item.example)}</p></div><span>依据：${escapeHTML(item.evidence)}</span></article>`).join('')}</div></section>
           <section class="report-section life-summary-section" id="life-summary-section"><h2>生辰综合小结</h2><p class="section-intro">把命局结构与未来十年流年结果合并阅读，直接整理使用者最关心的六项主题。</p><div class="life-summary-grid">${lifeItems.map(item => `<article class="life-summary-card"><header><span>${escapeHTML(item.title)}</span></header><p>${escapeHTML(item.summary)}</p>${item.highlights?.length ? `<dl class="summary-detail-list">${item.highlights.map(detail => `<div><dt>${escapeHTML(detail.label)}</dt><dd>${escapeHTML(detail.text)}</dd></div>`).join('')}</dl>` : ''}<div class="life-advice"><b>建议</b>${escapeHTML(item.advice)}</div><small>依据：${escapeHTML(item.evidence)}</small></article>`).join('')}</div></section>
           ${careerHealthHTML(chart, forecast)}
           ${structureAnalysisHTML(chart)}
@@ -1868,6 +2022,23 @@
       <p class="source-note"><b>阅读提醒：</b>${escapeHTML(item.note)}</p>`;
     modal.showModal();
   }
+  function openTenGodDetail(name, position, dayStem, targetStem) {
+    const info = TEN_GOD_INFO[name];
+    if (!info) return toast('暂未收录该十神说明');
+    modalContent.innerHTML = `
+      <span class="eyebrow">十神释义</span>
+      <h2>${escapeHTML(name)}</h2>
+      <div class="modal-fact-grid">
+        <div><small>所在位置</small><b>${escapeHTML(position || '未记录')}</b></div>
+        <div><small>干支关系</small><b>${escapeHTML(dayStem || '日主')} → ${escapeHTML(targetStem || '本柱')}</b></div>
+      </div>
+      <h3>怎样计算</h3><p>${escapeHTML(info.relation)}</p>
+      <h3>一般代表什么</h3><p>${escapeHTML(info.meaning)}</p>
+      <div class="plain-example modal-example"><b>生活例子</b><p>${escapeHTML(info.example)}</p></div>
+      <p class="source-note"><b>主要据典：</b>《子平真诠》的月令与十神格局体系；《渊海子平》《三命通会》的十神生克法。</p>
+      <p class="method-note">十神必须结合月令、旺衰、透藏、位置和合冲共同判断；单独出现一个十神，不能直接断定性格或吉凶。</p>`;
+    modal.showModal();
+  }
   function openComplaint() {
     const settings = getSettings();
     modalContent.innerHTML = `<span class="eyebrow">投诉与申诉</span><h2>我们会核查每一项报告问题</h2><p>可投诉错误排盘、虚构引用、健康／投资越界、隐私处理或付款退款问题。请提供报告编号，不要在邮件正文再次发送完整出生资料。</p><p><b>联系邮箱：</b>${escapeHTML(settings.complaintEmail)}</p><p><b>演示处理时限：</b>收到后 7 个工作日内反馈。</p>`;
@@ -1891,7 +2062,7 @@
     });
     const groups = [
       { title: '封面与排盘', lines: ['八字真言命理分析报告', `报告编号 ${report.reportNo}`, `生成时间 ${formatDate(report.createdAt)}`, '', `四柱：${report.chart.pillars.map(item => item.text).join('　')}`, `十神：${report.chart.pillars.map((item, index) => index === 2 ? '日主' : tenGodName(report.chart.pillars[2].stemIndex, item.stemIndex)).join('　')}`, `民用时间：${report.chart.civilTime}`, `真太阳时：${report.chart.trueSolarTime}`, `校正：${report.chart.correctionMinutes >= 0 ? '+' : ''}${report.chart.correctionMinutes} 分钟`, '', '【宫位与神煞】', ...shenshaLines] },
-      { title: '命局性格总论', lines: [...narrativeItems.flatMap(item => [`【${item.label}】`, item.text, '']), ...conclusionItems.flatMap(item => [`【${item.title}】`, item.body, `依据：${item.evidence}`, ''])] },
+      { title: '命局性格总论', lines: [...narrativeItems.flatMap(item => [`【${item.label}】`, item.text, '']), ...conclusionItems.flatMap(item => [`【${item.title}】`, item.body, `建议：${item.advice}`, `举例：${item.example}`, `依据：${item.evidence}`, ''])] },
       { title: '生辰综合小结', lines: lifeItems.flatMap(item => [`【${item.title}】`, item.summary, ...(item.highlights || []).map(detail => `${detail.label}：${detail.text}`), `建议：${item.advice}`, `依据：${item.evidence}`, '']) },
       { title: '职业发展与身体关注', lines: ['【主轴领域】', careerHealth.directions.join('／'), '【具体职位】', careerHealth.roles.join('、'), careerHealth.workStyle, careerHealth.development, ...careerHealth.steps.map(step => `行动：${step}`), '', '【身体关注】', ...careerHealth.bodyFocus.flatMap(item => [`${item.element} · ${item.role}`, `关注：${item.areas}`, `日常建议：${item.advice}`, '']), '身体部分为传统五行生活观察，不作疾病诊断。'] },
       { title: '十神与财官结构', lines: ['【十神结构】', `常规结构 ${profile.conventionalPercent}%　变动结构 ${profile.variablePercent}%`, Object.entries(profile.tenGodCounts).map(([name, count]) => `${name}${count}`).join('、'), '', '【表层承载结构】', `同类与印星 ${profile.surfaceSupportPercent}%　其余五行 ${100 - profile.surfaceSupportPercent}%`, '此比例不能直接命名为身强身弱或实际担财能力。', '', '【财星落位】', ...(profile.positions.wealth.length ? profile.positions.wealth : ['原局表层未检出财星']), '', '【官杀落位】', ...(profile.positions.career.length ? profile.positions.career : ['原局表层未检出官杀']), '', '【地支关系】', ...(relations.length ? relations.map(item => `${item.members} ${item.type}（${item.positions}）`) : ['未触发本版已收录的六合、六冲或三合规则'])] },
@@ -2007,6 +2178,7 @@
     else if (action === 'close-modal') modal.close();
     else if (action === 'show-shensha') openShenshaDetail(target.dataset.shensha, target.dataset.position, target.dataset.trigger);
     else if (action === 'show-pillar-meaning') openPillarMeaning(target.dataset.pillarIndex);
+    else if (action === 'show-ten-god') openTenGodDetail(target.dataset.tengod, target.dataset.position, target.dataset.dayStem, target.dataset.targetStem);
     else if (action === 'copy-token') navigator.clipboard?.writeText(target.dataset.token).then(() => toast('凭证已复制'));
     else if (action === 'open-wechat') {
       const settings = getSettings(); const lead = consumeHandoff(target.dataset.token);
@@ -2058,6 +2230,7 @@
       pillarVoid,
       pillarNayin,
       detailChartHTML,
+      wealthProfile,
       structureProfile,
       branchRelations,
       structureAnalysisHTML,
