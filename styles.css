@@ -268,6 +268,27 @@ input:focus, select:focus, textarea:focus { border-color: var(--cinnabar); box-s
 .analysis-callout { display: grid; grid-template-columns: minmax(150px,.35fr) 1fr; gap: 18px; align-items: center; margin-bottom: 20px; padding: 20px; background: rgba(255,255,255,.45); border: 1px solid var(--line); }
 .analysis-callout b { color: var(--gold); font-size: 22px; }
 .analysis-callout span { color: var(--ink-soft); }
+.wealth-palace-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 4px 0 16px; }
+.wealth-palace-card { min-height: 238px; padding: 18px 15px; border: 1px solid var(--line); background: rgba(255,255,255,.38); }
+.wealth-palace-card.has-wealth { border-top: 3px solid var(--gold); background: rgba(180,128,24,.07); }
+.wealth-palace-card header { display: grid; gap: 3px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.wealth-palace-card header b { color: var(--cinnabar); font-size: 18px; }
+.wealth-palace-card header span, .wealth-palace-card > small { color: var(--ink-soft); font-size: 12px; }
+.wealth-palace-card > div { display: grid; gap: 8px; min-height: 72px; padding: 13px 0 6px; }
+.wealth-palace-card > div span { display: grid; gap: 2px; }
+.wealth-palace-card > div b { color: var(--ink); }
+.wealth-palace-card > div small { color: var(--gold); }
+.wealth-palace-card .wealth-empty b, .wealth-palace-card .wealth-empty small { color: var(--ink-faint, #9a9284); }
+.wealth-palace-card p { margin: 8px 0 5px; font-weight: 700; }
+.wealth-summary-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.wealth-summary-strip span { padding: 13px 15px; border-left: 3px solid var(--jade); background: rgba(49,94,80,.06); }
+.wealth-summary-strip small, .wealth-summary-strip b { display: block; }
+.wealth-summary-strip small { color: var(--ink-soft); }
+.wealth-summary-strip b { margin-top: 3px; font-size: 15px; }
+.wealth-key-analysis { margin: 18px 0; padding: 22px 24px; border: 1px solid rgba(180,128,24,.28); background: linear-gradient(135deg, rgba(255,255,255,.68), rgba(180,128,24,.06)); }
+.wealth-key-analysis h3 { margin: 0 0 13px; color: var(--ink); font-size: 20px; }
+.wealth-key-analysis p { margin: 9px 0; line-height: 1.9; }
+.wealth-key-analysis mark { padding: 0 .14em; color: #9f6f16; font-weight: 700; background: linear-gradient(transparent 62%, rgba(203,160,72,.22) 62%); }
 .compact-list { grid-template-columns: repeat(2, 1fr); }
 .relation-map { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
 .relation-card { display: grid; place-items: center; min-height: 132px; padding: 18px; background: rgba(255,255,255,.52); border: 1px solid var(--line); text-align: center; }
@@ -313,6 +334,12 @@ input:focus, select:focus, textarea:focus { border-color: var(--cinnabar); box-s
 .conclusion-card > small { color: var(--cinnabar); font-weight: 700; letter-spacing: .1em; }
 .conclusion-card p { margin: 9px 0 13px; color: var(--ink); }
 .conclusion-card > span, .life-summary-card > small { display: block; color: var(--ink-soft); font-size: 11px; line-height: 1.65; }
+.plain-advice, .plain-example { margin: 12px 0; padding: 12px 14px; border-left: 3px solid var(--jade); background: rgba(49,94,80,.055); }
+.plain-example { border-left-color: var(--gold); background: rgba(180,128,24,.07); }
+.plain-advice b, .plain-example b { color: var(--jade); font-size: 13px; letter-spacing: .06em; }
+.plain-example b { color: #9f6f16; }
+.plain-advice p, .plain-example p { margin: 5px 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.75; }
+.modal-example { margin: 18px 0; }
 .life-summary-card header { margin: -20px -20px 16px; padding: 10px 18px; color: #fff8e8; background: var(--jade); }
 .life-summary-card header span { font-weight: 700; letter-spacing: .08em; }
 .life-summary-card p { color: var(--ink); }
@@ -516,6 +543,8 @@ th { color: var(--ink-soft); }
   .fact-grid { grid-template-columns: repeat(2, 1fr); }
   .ten-god-grid { grid-template-columns: repeat(2, 1fr); }
   .analysis-callout { grid-template-columns: 1fr; }
+  .wealth-palace-grid { grid-template-columns: repeat(2, 1fr); }
+  .wealth-summary-strip { grid-template-columns: 1fr; }
   .guidance-grid, .trend-grid { grid-template-columns: 1fr; }
   .annual-action-list, .key-action-panel, .final-summary-grid { grid-template-columns: 1fr; }
   .detailed-timeline .year-row { grid-template-columns: 68px 1fr; }
@@ -523,6 +552,11 @@ th { color: var(--ink-soft); }
   .ornament-title { min-width: 190px; font-size: 18px; }
   .human-narrative article { grid-template-columns: 1fr; gap: 5px; }
   .modal-fact-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .wealth-palace-grid { grid-template-columns: 1fr; }
+  .wealth-palace-card { min-height: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
